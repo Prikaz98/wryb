@@ -2,14 +2,15 @@
 <head>
     <meta charset="utf-8">
     <title>Write your buissnes</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<form id="task-in-form">
-    <lable>Task:</lable>
-    <input type="text" id="task-in"/><br><br>
-    <input type="button" value="Submit" id="bt1" onclick="wryb.mainpage.submit_task()">
+<form id="task-in-form" onsubmit="return false;">
+    <label>Inbox</label><br>
+    <input type="text" id="task-in" placeholder="Enter your task"/>
 </form>
-<ul id="task-list"></ul>
+<ul class="listTask" id="new-tasks"></ul>
+<ul class="listTask" id="done-task"></ul>
 <script type="text/javascript" src="js/cljsbuild-main.js"></script>
 </body>
 </html>

@@ -1,0 +1,23 @@
+label {
+  font-family: "Courier New", monospace;
+}
+#task-in {
+  font-family: "Courier New", monospace;
+  font-size: 20
+  margin: 5px;
+}
+#task-list {
+    font-family: "Courier New", monospace;
+    font-size: 15
+    list-style-type: none;
+    padding: 0;
+}
+.listTask {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #ccc;
+}
+
+body {
+  background-color: lightblue;
+}

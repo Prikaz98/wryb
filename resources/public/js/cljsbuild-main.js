@@ -39304,8 +39304,35 @@ process.env.NODE_ENV = goog.define("process.env.NODE_ENV", "development");
 goog.provide("wryb.mainpage");
 goog.require("cljs.core");
 cljs.core.println.call(null, "clojre script is working");
-wryb.mainpage.submit_task = function wryb$mainpage$submit_task() {
-  var new_task = document.getElementById("task-in").value;
-  var before_list = document.getElementById("task-list").innerHTML;
-  return document.getElementById("task-list").innerHTML = [cljs.core.str.cljs$core$IFn$_invoke$arity$1(before_list), "\x3cli\x3e", cljs.core.str.cljs$core$IFn$_invoke$arity$1(new_task), "\x3c/li\x3e"].join("");
+wryb.mainpage.clear_element = function wryb$mainpage$clear_element(id) {
+  cljs.core.println.call(null, "clear element");
+  return document.getElementById(id).value = null;
 };
+wryb.mainpage.add_handler = function wryb$mainpage$add_handler(id, type, fun) {
+  return document.getElementById(id).addEventListener(type, fun);
+};
+wryb.mainpage.make_new_task = function wryb$mainpage$make_new_task(task, uuid) {
+  return ['\x3cdiv\x3e\x3cinput id\x3d"', cljs.core.str.cljs$core$IFn$_invoke$arity$1(uuid), '" type\x3d"checkbox"/\x3e\x3clable\x3e', cljs.core.str.cljs$core$IFn$_invoke$arity$1(task), "\x3c/label\x3e\x3c/div\x3e"].join("");
+};
+wryb.mainpage.submit_task = function wryb$mainpage$submit_task() {
+  var task_field_id = "task-in";
+  var new_task = document.getElementById(task_field_id).value;
+  var before_list = document.getElementById("new-tasks").innerHTML;
+  var uuid = cljs.core.random_uuid.call(null);
+  if (cljs.core.truth_(cljs.core.not_empty.call(null, new_task))) {
+    document.getElementById("new-tasks").innerHTML = [cljs.core.str.cljs$core$IFn$_invoke$arity$1(before_list), wryb.mainpage.make_new_task.call(null, new_task, uuid)].join("");
+    wryb.mainpage.add_handler.call(null, uuid, "change", function(event) {
+      return cljs.core.println.call(null, uuid, "changed", event);
+    });
+    return wryb.mainpage.clear_element.call(null, task_field_id);
+  } else {
+    return null;
+  }
+};
+wryb.mainpage.add_handler.call(null, "task-in", "keypress", function(event) {
+  if (cljs.core._EQ_.call(null, event.keyCode, 13)) {
+    return wryb.mainpage.submit_task.call(null);
+  } else {
+    return null;
+  }
+});
