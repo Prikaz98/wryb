@@ -1,5 +1,6 @@
 (ns wryb.core
   (:require
+   [wryb.domain.taskrepo :as repo]
    [clojure.string :refer [join]]
    [compojure.core :refer [defroutes GET POST]]
    [ring.middleware.resource :refer [wrap-resource]]
@@ -7,23 +8,24 @@
    [ring.util.response :refer [content-type resource-response response]]
    [wryb.domain.task :refer [task-from-json task-to-json]]))
 
-(def ntasks (atom '()))
-
 (defn store-new-task! [request]
-  (let [nw (-> (body-string request)
-               (task-from-json))]
-    (swap! ntasks conj nw)))
+  (let [new-task (-> (body-string request)
+                     (task-from-json))]
+    (task-to-json (repo/save! new-task))))
 
 (defn return-task-list []
-  (if (empty? @ntasks) nil
-      (concat "[" (join "," (map (fn [el] (task-to-json el)) @ntasks)) "]")))
+  (let [data-list (repo/get-all)]
+    (if (empty? data-list) nil
+        (concat "[" (join "," (map (fn [el] (task-to-json el)) data-list)) "]"))))
+
+(defn app-json [resp]
+  (content-type resp "application/json"))
 
 (defroutes routes
   (GET "/" [] (resource-response "public/index.html"))
-  (GET "/get-tasks" [] (content-type (response (return-task-list)) "application/json"))
+  (GET "/get-tasks" [] (app-json (response (return-task-list))))
   (POST "/new-task" request
-    (store-new-task! request)
-    (response "ok")))
+    (app-json (response (store-new-task! request)))))
 
 (def app
   (-> routes
