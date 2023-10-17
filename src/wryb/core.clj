@@ -23,8 +23,8 @@
 
 (defroutes routes
   (GET "/" [] (resource-response "public/index.html"))
-  (GET "/get-tasks" [] (app-json (response (return-task-list))))
-  (POST "/new-task" request
+  (GET "/task/list" [] (app-json (response (return-task-list))))
+  (POST "/task/new" request
     (app-json (response (store-new-task! request)))))
 
 (def app
