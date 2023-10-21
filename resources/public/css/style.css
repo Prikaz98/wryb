@@ -35,3 +35,16 @@ ul {
 .task-title {
   font-size: 15;
 }
+.donetaskcb {
+  margin: 10px 5px 0px 6px;
+}
+ul {
+    padding-inline-start: 10px;
+    background-color: aliceblue;
+}
+ul#done-task {
+    background-color: lightsteelblue;
+}
+ul#done-task div {
+ text-decoration: line-through
+}

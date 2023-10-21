@@ -8,14 +8,16 @@ var model = {
 
 function checkExistsAndMakeTaskElement(task_json) {
   var uuid = task_json.id
-  if(document.getElementById(uuid) == null) {
-    let title = task_json.title
-    let desc = task_json.desc
-    let isdone = task_json.isdone
-    return createDiv(`${createInput(uuid, 'checkbox', isdone)}${createTitleLabel(title)}<br>${createDescLabel(desc)}`);
-  } else {
-    return ""
+  let rowId = "div" + uuid
+
+  if(document.getElementById(rowId) != null) {
+    document.getElementById(rowId).remove();
   }
+
+  let title = task_json.title
+  let desc = task_json.desc
+  let isdone = task_json.isdone
+  return createDiv(`${createCheckBoxDoneTask(uuid, isdone)}${createTitleLabel(title)}<br>${createDescLabel(desc)}`, rowId);
 }
 
 function reloadModel() {
@@ -30,8 +32,8 @@ function clearElement(id) {
   return document.getElementById(id).value = null
 }
 
-function createDiv(args) {
-  return `<div>${args}</div>`
+function createDiv(args, id) {
+  return `<div id="${id}">${args}</div>`
 }
 
 function addHandler(id, type, fun) {
@@ -47,15 +49,44 @@ function createDescLabel(text) {
   return `<label class="task-desc">${text}</label>`
 }
 
-function createInput(id, type, checked) {
-  let end = checked ? "checked" : "/"
-  return `<input id="${id}" type="${type}" ${end}>`
+function toDone(id){
+  console.log(id)
+  let value = document.getElementById(id).checked
+  let toUpdate = model.newTasks.concat(model.doneTasks).find((el) => el.id == id)
+  const updated = structuredClone(toUpdate)
+  updated.isdone = value
+
+  fetch(new Request("/task",
+      {"method":"POST", "body":JSON.stringify(updated)})
+  ).then(function(resp) {
+    return resp.text()
+  }).then(function(body) {
+    console.log(body)
+    return handleTask(JSON.parse(body))
+  });
+}
+
+function createCheckBoxDoneTask(id, checked) {
+  let check = checked ? "checked" : "/";
+  return `<input class="donetaskcb" id="${id}" onclick="toDone(id)" type="checkbox" ${check}>`
+}
+function removeIfFind(arr, predicate) {
+  let maybeFound = arr.find(predicate)
+  if(maybeFound != null) {
+    let index = arr.indexOf(maybeFound)
+    console.log("TO remove " + index)
+    if (index > -1) { // only splice array when item is found
+      arr.splice(index, 1); // 2nd parameter means remove one item only
+    }
+  }
 }
 
 function handleTask(js_task) {
   if(js_task.isdone) {
+    removeIfFind(model.newTasks, (el) => el.id == js_task.id)
     model.doneTasks.push(js_task)
   } else {
+    removeIfFind(model.doneTasks, (el) => el.id == js_task.id)
     model.newTasks.push(js_task)
   }
 
@@ -67,7 +98,7 @@ function taskToJson(title, desc) {
 }
 
 function loadData() {
-  fetch(new Request("/task/list", {"method":"GET"}))
+  fetch(new Request("/tasks", {"method":"GET"}))
   .then((resp) => { return resp.text()})
   .then((body) => { if(!body.Empty) { JSON.parse(body).forEach(handleTask) } } )
 }
@@ -78,7 +109,7 @@ function submitTask() {
   var title_v = document.getElementById(title).value;
   var desc_v = document.getElementById(desc).value;
   if (!title_v.Empty) {
-    fetch(new Request("/task/new",
+    fetch(new Request("/task",
         {"method":"POST", "body":taskToJson(title_v, desc_v)})
     )
     .then(function(resp) {

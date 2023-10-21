@@ -8,10 +8,14 @@
    [ring.util.response :refer [content-type resource-response response]]
    [wryb.domain.task :refer [task-from-json task-to-json]]))
 
-(defn store-new-task! [request]
+(defn store-task! [request]
   (let [new-task (-> (body-string request)
                      (task-from-json))]
     (task-to-json (repo/save! new-task))))
+
+(defn logging! [request]
+  (println request)
+  request)
 
 (defn return-task-list []
   (let [data-list (repo/get-all)]
@@ -23,9 +27,12 @@
 
 (defroutes routes
   (GET "/" [] (resource-response "public/index.html"))
-  (GET "/task/list" [] (app-json (response (return-task-list))))
-  (POST "/task/new" request
-    (app-json (response (store-new-task! request)))))
+  (GET "/tasks" [] (app-json (response (return-task-list))))
+  (POST "/task" request (-> request
+                            ;;(logging!)
+                            (store-task!)
+                            (response)
+                            (app-json))))
 
 (def app
   (-> routes
