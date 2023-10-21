@@ -1,6 +1,7 @@
 (ns wryb.core
   (:require
-   [wryb.domain.taskrepo :as repo]
+;;   [wryb.domain.taskrepo :as repo]
+   [wryb.domain.sqlite.taskrepo :as repo]
    [clojure.string :refer [join]]
    [compojure.core :refer [defroutes GET POST]]
    [ring.middleware.resource :refer [wrap-resource]]
