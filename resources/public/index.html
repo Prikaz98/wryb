@@ -5,13 +5,18 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<form id="task-in-form" onsubmit="return false;">
-    <label>Inbox</label><br>
-    <input type="text" id="title" placeholder="Enter your task"/><br>
-    <input type="text" id="desc" placeholder="description"/>
-</form>
-<ul class="listTask" id="new-task"></ul>
-<ul class="listTask" id="done-task"></ul>
+<div class="all">
+    <div class="input">
+        <input class="input-text" type="text" id="title" placeholder="Task"/><br>
+        <input class="input-text" type="text" id="desc" placeholder="Description"/>
+    </div>
+    <ul class="listTask" id="new-task">
+        <label>new:</label><br>
+    </ul>
+    <ul class="listTask" id="done-task">
+        <label>done:</label><br>
+    </ul>
+</div>
 <script type="text/javascript" src="js/cljsbuild-main.js"></script>
 </body>
 </html>

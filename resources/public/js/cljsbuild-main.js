@@ -1,40 +1,65 @@
 console.log("script is working")
 
+var model = {
+    newTasks : [],
+    doneTasks : []
+}
+
+
+function checkExistsAndMakeTaskElement(task_json) {
+  var uuid = task_json.id
+  if(document.getElementById(uuid) == null) {
+    let title = task_json.title
+    let desc = task_json.desc
+    let isdone = task_json.isdone
+    return createDiv(`${createInput(uuid, 'checkbox', isdone)}${createTitleLabel(title)}<br>${createDescLabel(desc)}`);
+  } else {
+    return ""
+  }
+}
+
+function reloadModel() {
+  let newTasks = model.newTasks.map(checkExistsAndMakeTaskElement).join("")
+  document.getElementById("new-task").innerHTML += newTasks
+
+  let doneTasks = model.doneTasks.map(checkExistsAndMakeTaskElement).join("")
+  document.getElementById("done-task").innerHTML += doneTasks
+}
+
 function clearElement(id) {
   return document.getElementById(id).value = null
+}
+
+function createDiv(args) {
+  return `<div>${args}</div>`
 }
 
 function addHandler(id, type, fun) {
   return document.getElementById(id).addEventListener(type, fun)
 }
 
-function createDiv(args) {
-  console.log(args)
-  return `<div>${args}</div>`
+
+function createTitleLabel(text) {
+  return `<label class="task-title">${text}</label>`
 }
 
-function createLabel(text) {
-  return `<label>${text}</label>`
+function createDescLabel(text) {
+  return `<label class="task-desc">${text}</label>`
 }
 
-function createInput(id, type) {
-  return `<input id="${id}" type="${type}"/>`
-};
-
-function makeNewTask(task_json) {
-  if(task_json != null){
-    var title = task_json.title
-    var desc = task_json.desc
-    var uuid = task_json.id
-    return createDiv(`${createInput(uuid, 'checkbox')}${createLabel(title + ': ' + desc)}`);
-  } else {
-    return ""
-  }
-};
+function createInput(id, type, checked) {
+  let end = checked ? "checked" : "/"
+  return `<input id="${id}" type="${type}" ${end}>`
+}
 
 function handleTask(js_task) {
-  var list_name = js_task.isdone ? "done-task" : "new-task"
-  document.getElementById(list_name).innerHTML += makeNewTask(js_task);
+  if(js_task.isdone) {
+    model.doneTasks.push(js_task)
+  } else {
+    model.newTasks.push(js_task)
+  }
+
+ reloadModel()
 }
 
 function taskToJson(title, desc) {
