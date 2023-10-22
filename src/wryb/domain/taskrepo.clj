@@ -1,6 +1,8 @@
 (ns wryb.domain.taskrepo
   (:import (java.util UUID)))
 
+;;depricated use sqlite storage
+
 (def task-storage (atom {}))
 
 (defn save! [task]

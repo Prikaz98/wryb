@@ -1,0 +1,10 @@
+title = "Write your bissness application"
+
+[owner]
+name = "Prikaznov Ivan"
+
+[database]
+path = "/home/ivan/tmp/task.db" #if you use this app you have to rewrite this
+
+[server]
+port = 3000

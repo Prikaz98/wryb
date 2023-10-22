@@ -1,7 +1,7 @@
 (ns wryb.domain.sqlite.connectionmanagertest
   (:require [wryb.domain.sqlite.connectionmanager :as cm]
             [wryb.domain.task :refer [->Task]]
-            [wryb.domain.sqlite.taskrepo :refer [task-to-insert-q task-to-update-q save! get-by-id get-all]]
+            [wryb.domain.sqlite.taskrepo :refer :all]
             [clojure.test :refer :all]))
 
 (deftest load-resource
@@ -21,7 +21,13 @@
 (deftest create-update-query-from-task
   (testing "query make from task"
     (let [query (task-to-update-q (->Task "id" "hello" "after mornign" false))
-          expected "UPDATE task SET id='id',title='hello',desc='after mornign',isdone=false;"]
+          expected "UPDATE task SET title='hello',desc='after mornign',isdone=false where id='id';"]
+      (is (= expected query)))))
+
+(deftest delete-query-from-task-id
+  (testing "make query from task id"
+    (let [query (task-id-delete-q "someid")
+          expected "DELETE FROM task WHERE id='someid';"]
       (is (= expected query)))))
 
 (deftest insert-and-get-by-id
@@ -41,3 +47,11 @@
           saved (save! t)
           all (get-all)]
       (is (= (first all) saved)))))
+
+(deftest insert-and-remove-by-id
+  (testing "insert task and remove by id"
+    (cm/init-connection ":memory:")
+    (let [t (->Task nil "hello" "after mornign" false)
+          saved-id (:id (save! t))]
+      (remove! saved-id)
+      (is (nil? (get-by-id saved-id))))))
