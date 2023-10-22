@@ -47,7 +47,5 @@
              (recur (conj acc task) rs)))) '() rs)))
 
 (defn remove! [id]
-  (try
-    (-> (create-stmt)
-        (.executeUpdate (task-id-delete-q id)))
-    (catch Exception e (println "catched exception : " (.getMessage e)))))
+  (-> (create-stmt)
+      (.executeUpdate (task-id-delete-q id))))
