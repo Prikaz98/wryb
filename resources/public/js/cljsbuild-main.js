@@ -133,7 +133,7 @@ function remove(id) {
 }
 
 function createDeleteButton(id) {
-  return `<input type="submit" onclick="remove('${id}')" value="remove">`
+  return `<input type="submit" onclick="remove('${id}')" style="float:right" value="del">`
 }
 
 function removeIfFind(arr, predicate) {

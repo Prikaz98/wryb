@@ -58,7 +58,7 @@ ul {
 .done {
  background-color: lightsteelblue;
 }
-.done ul{
+.done ul {
  text-decoration: line-through
 }
 
