@@ -4,6 +4,45 @@ var model = {
     newTasks : [],
     doneTasks : []
 }
+var editModel = null;
+
+function editTaskSubmit() {
+  if(editModel == null) return;
+
+  let id = editModel.id
+  let title_v = document.getElementById("edit-title").value;
+  let desc_v = document.getElementById("edit-desc").value;
+  editModel.title = title_v
+  editModel.desc = desc_v
+  let toUpdate = JSON.stringify(editModel);
+  if (!title_v.Empty) {
+    fetch(new Request("/task",
+        {"method":"POST", "body":toUpdate})
+    )
+    .then(function(resp) {
+      return resp.text()
+    }).then(function(body) {
+      console.log(body)
+      reloadModel()
+    });
+  }
+};
+
+function reloadEditView() {
+  let title = editModel.title
+  let desc = editModel.desc
+  document.getElementById("edit-title").value = title
+  document.getElementById("edit-desc").value = desc
+}
+
+function updateEditView(divId) {
+  editTaskSubmit()
+
+  let taskId = divId.substring(3, divId.length)
+  let toUpdate = model.newTasks.concat(model.doneTasks).find((el) => el.id == taskId)
+  editModel = toUpdate
+  reloadEditView()
+}
 
 
 function checkExistsAndMakeTaskElement(task_json) {
@@ -17,10 +56,15 @@ function checkExistsAndMakeTaskElement(task_json) {
   let title = task_json.title
   let desc = task_json.desc
   let isdone = task_json.isdone
-  return createDiv(`${createCheckBoxDoneTask(uuid, isdone)}${createTitleLabel(title)}<br>${createDescLabel(desc)}`, rowId);
+
+  let rowElement = createDiv(`${createCheckBoxDoneTask(uuid, isdone)}${createTitleLabel(title)} ${createDeleteButton(uuid)}<br>${createDescLabel(desc)}`, rowId);
+  return rowElement;
 }
 
 function reloadModel() {
+  document.getElementById("new-task").innerHTML = null
+  document.getElementById("done-task").innerHTML = null
+
   let newTasks = model.newTasks.map(checkExistsAndMakeTaskElement).join("")
   document.getElementById("new-task").innerHTML += newTasks
 
@@ -33,7 +77,7 @@ function clearElement(id) {
 }
 
 function createDiv(args, id) {
-  return `<div id="${id}">${args}</div>`
+  return `<div id="${id}" onclick="updateEditView(id)">${args}</div>`
 }
 
 function addHandler(id, type, fun) {
@@ -70,6 +114,28 @@ function createCheckBoxDoneTask(id, checked) {
   let check = checked ? "checked" : "/";
   return `<input class="donetaskcb" id="${id}" onclick="toDone(id)" type="checkbox" ${check}>`
 }
+
+function remove(id) {
+    console.log("id to remove" + id)
+    let toDelete = JSON.stringify({"id": id})
+    fetch(new Request("/task",
+        {"method":"DELETE", "body":toDelete})
+    )
+    .then(function(resp) {
+      return resp.text()
+    }).then(function(removedId) {
+      removeIfFind(model.newTasks, (el) => el.id == removedId)
+      removeIfFind(model.doneTasks, (el) => el.id == removedId)
+
+      console.log(removedId)
+      reloadModel()
+    });
+}
+
+function createDeleteButton(id) {
+  return `<input type="submit" onclick="remove('${id}')" value="remove">`
+}
+
 function removeIfFind(arr, predicate) {
   let maybeFound = arr.find(predicate)
   if(maybeFound != null) {
@@ -135,5 +201,7 @@ function enterPressSubmitTask(event) {
 addHandler("title", "keypress", enterPressSubmitTask)
 
 addHandler("desc", "keypress", enterPressSubmitTask)
+
+//addHandler("edit-submit", "click", (e) => editTaskSubmit())
 
 loadData();
