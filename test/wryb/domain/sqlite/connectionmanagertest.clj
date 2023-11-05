@@ -12,18 +12,6 @@
   (testing "Sqlite create in-memory connection and apply migration"
     (is (not (nil? (cm/init-connection ":memory:"))))))
 
-(deftest create-insert-query-from-task
-  (testing "query make from task"
-    (let [query (task-to-insert-q (->Task "id" "hello" "after mornign" false))
-          expected "INSERT INTO task VALUES('id','hello','after mornign',false);"]
-      (is (= expected query)))))
-
-(deftest create-update-query-from-task
-  (testing "query make from task"
-    (let [query (task-to-update-q (->Task "id" "hello" "after mornign" false))
-          expected "UPDATE task SET title='hello',desc='after mornign',isdone=false where id='id';"]
-      (is (= expected query)))))
-
 (deftest delete-query-from-task-id
   (testing "make query from task id"
     (let [query (task-id-delete-q "someid")

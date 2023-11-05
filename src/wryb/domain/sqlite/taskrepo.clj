@@ -3,11 +3,23 @@
             [wryb.domain.sqlite.connectionmanager :refer [connection]])
   (:import (java.util UUID)))
 
-(defn task-to-insert-q [t]
-  (str "INSERT INTO task VALUES('" (:id t) "','" (:title t) "','" (:desc t) "'," (:is-done t) ");"))
+(defn- insert-task! [t]
+  (let [stmt (.prepareStatement @connection "INSERT INTO task (id, title, desc, isdone) VALUES (?,?,?,?);")]
+    (.setString stmt 1 (:id t))
+    (.setString stmt 2 (:title t))
+    (.setString stmt 3 (:desc t))
+    (.setBoolean stmt 4 (:is-done t))
+    (.execute stmt)
+    (.close stmt)))
 
-(defn task-to-update-q [t]
-  (str "UPDATE task SET title='" (:title t) "',desc='" (:desc t) "',isdone=" (:is-done t) " where id='" (:id t) "';"))
+(defn- update-task! [t]
+  (let [stmt (.prepareStatement @connection "UPDATE task SET title=?,desc=?,isdone=? where id=?;")]
+    (.setString stmt 1 (:title t))
+    (.setString stmt 2 (:desc t))
+    (.setBoolean stmt 3 (:is-done t))
+    (.setString stmt 4 (:id t))
+    (.execute stmt)
+    (.close stmt)))
 
 (defn task-id-delete-q [id]
   (str "DELETE FROM task WHERE id='" id "';"))
@@ -29,10 +41,10 @@
   (if (nil? (:id task))
     (let [id (str (UUID/randomUUID))
           new-task (assoc task :id id)]
-      (.executeUpdate (create-stmt) (task-to-insert-q new-task))
+      (insert-task! new-task)
       new-task)
     (do
-      (.executeUpdate (create-stmt) (task-to-update-q task))
+      (update-task! task)
       task)))
 
 (defn get-by-id [id]
