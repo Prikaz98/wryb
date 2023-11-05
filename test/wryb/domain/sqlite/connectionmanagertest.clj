@@ -1,8 +1,15 @@
 (ns wryb.domain.sqlite.connectionmanagertest
   (:require [wryb.domain.sqlite.connectionmanager :as cm]
             [wryb.domain.task :refer [->Task]]
+            [wryb.date.instant-utils :refer [now]]
             [wryb.domain.sqlite.taskrepo :refer :all]
             [clojure.test :refer :all]))
+
+(defn- tasks-equeal [l r]
+  (and (= (:id l) (:id r))
+       (= (:title l) (:title r))
+       (= (:desc l) (:desc r))
+       (= (:isdone l) (:isdone r))))
 
 (deftest load-resource
   (testing "Load resource"
@@ -21,25 +28,25 @@
 (deftest insert-and-get-by-id
   (testing "insert task and get by id"
     (cm/init-connection ":memory:")
-    (let [t (->Task nil "hello" "after mornign" false)
+    (let [t (->Task nil "hello" "after mornign" false (now))
           saved (save! t)]
       (is (not (nil? saved)))
       (-> (get-by-id (:id saved))
-          (= saved)
+          (tasks-equeal saved)
           (is)))))
 
 (deftest insert-and-get-all
   (testing "insert task and get by id"
     (cm/init-connection ":memory:")
-    (let [t (->Task nil "hello" "after mornign" false)
+    (let [t (->Task nil "hello" "after mornign" false (now))
           saved (save! t)
           all (get-all)]
-      (is (= (first all) saved)))))
+      (is (tasks-equeal (first all) saved)))))
 
 (deftest insert-and-remove-by-id
   (testing "insert task and remove by id"
     (cm/init-connection ":memory:")
-    (let [t (->Task nil "hello" "after mornign" false)
+    (let [t (->Task nil "hello" "after mornign" false (now))
           saved-id (:id (save! t))]
       (remove! saved-id)
       (is (nil? (get-by-id saved-id))))))

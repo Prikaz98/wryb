@@ -1,14 +1,17 @@
 (ns wryb.domain.sqlite.taskrepo
   (:require [wryb.domain.task :refer [->Task]]
+            [wryb.date.instant-utils :refer [timestamp-to-instant instant-to-timestamp]]
             [wryb.domain.sqlite.connectionmanager :refer [connection]])
   (:import (java.util UUID)))
 
 (defn- insert-task! [t]
-  (let [stmt (.prepareStatement @connection "INSERT INTO task (id, title, desc, isdone) VALUES (?,?,?,?);")]
+  (let [stmt (.prepareStatement @connection
+                                "INSERT INTO task (id, title, desc, isdone, create_time) VALUES (?,?,?,?,?);")]
     (.setString stmt 1 (:id t))
     (.setString stmt 2 (:title t))
     (.setString stmt 3 (:desc t))
     (.setBoolean stmt 4 (:is-done t))
+    (.setTimestamp stmt 5 (instant-to-timestamp (:create-time t)))
     (.execute stmt)
     (.close stmt)))
 
@@ -34,8 +37,9 @@
     (let [id (.getString rs "id")
           title (.getString rs "title")
           desc (.getString rs "desc")
-          isdone (.getBoolean rs "isdone")]
-      (->Task id title desc isdone))))
+          isdone (.getBoolean rs "isdone")
+          create-time (timestamp-to-instant (.getTimestamp rs "create_time"))]
+      (->Task id title desc isdone create-time))))
 
 (defn save! [task]
   (if (nil? (:id task))
@@ -52,7 +56,7 @@
       (task-from-result-set)))
 
 (defn get-all []
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task;"))]
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY create_time DESC;"))]
     ((fn [acc rs]
        (let [task (task-from-result-set rs)]
          (if (nil? task) acc
