@@ -49,10 +49,6 @@ function checkExistsAndMakeTaskElement(task_json) {
   var uuid = task_json.id
   let rowId = "div" + uuid
 
-  if(document.getElementById(rowId) != null) {
-    document.getElementById(rowId).remove();
-  }
-
   let title = task_json.title
   let desc = task_json.desc
   let isdone = task_json.isdone
@@ -94,7 +90,6 @@ function createDescLabel(text) {
 }
 
 function toDone(id){
-  console.log(id)
   let value = document.getElementById(id).checked
   let toUpdate = model.newTasks.concat(model.doneTasks).find((el) => el.id == id)
   const updated = structuredClone(toUpdate)
@@ -105,8 +100,7 @@ function toDone(id){
   ).then(function(resp) {
     return resp.text()
   }).then(function(body) {
-    console.log(body)
-    return handleTask(JSON.parse(body))
+    return handleTask(JSON.parse(body), true)
   });
 }
 
@@ -147,16 +141,24 @@ function removeIfFind(arr, predicate) {
   }
 }
 
-function handleTask(js_task) {
+function handleTask(js_task, pushInHead) {
   if(js_task.isdone) {
     removeIfFind(model.newTasks, (el) => el.id == js_task.id)
-    model.doneTasks.push(js_task)
+    if(pushInHead) {
+      model.doneTasks.unshift(js_task)
+    } else {
+      model.doneTasks.push(js_task)
+    }
   } else {
     removeIfFind(model.doneTasks, (el) => el.id == js_task.id)
-    model.newTasks.push(js_task)
+    if(pushInHead) {
+      model.newTasks.unshift(js_task)
+    } else {
+      model.newTasks.push(js_task)
+    }
   }
 
- reloadModel()
+  reloadModel()
 }
 
 function taskToJson(title, desc) {
@@ -166,7 +168,7 @@ function taskToJson(title, desc) {
 function loadData() {
   fetch(new Request("/tasks", {"method":"GET"}))
   .then((resp) => { return resp.text()})
-  .then((body) => { if(!body.Empty) { JSON.parse(body).forEach(handleTask) } } )
+  .then((body) => { if(!body.Empty) { JSON.parse(body).forEach( (el) => handleTask(el, false) ) } } )
 }
 
 function submitTask() {
@@ -182,7 +184,7 @@ function submitTask() {
       return resp.text()
     }).then(function(body) {
       console.log(body)
-      return handleTask(JSON.parse(body))
+      return handleTask(JSON.parse(body), true)
     });
 
     clearElement(title)

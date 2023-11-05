@@ -7,12 +7,13 @@
 (defrecord Task [id title desc is-done create-time])
 
 (defn task-from-json [str]
-  (let [json-str (json/read-str str)]
+  (let [json-str (json/read-str str)
+        create-time-opt (get json-str "create-time")]
     (->Task (get json-str "id")
             (get json-str "title")
             (get json-str "desc")
             (get json-str "isdone")
-            (get-or-else (first (map #(parse-instant %) (list (get json-str "create-time")))) (now)))))
+            (get-or-else (if create-time-opt (parse-instant create-time-opt)) (now)))))
 
 (defn task-to-json [task]
   (json/write-str {:id (:id task)
