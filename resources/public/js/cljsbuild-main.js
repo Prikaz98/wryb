@@ -86,7 +86,11 @@ function createTitleLabel(text) {
 }
 
 function createDescLabel(text) {
-  return `<label class="task-desc">${text}</label>`
+  if(text != null) {
+    return `<label class="task-desc">${text}</label>`
+  }
+
+  return `<label class="task-desc"></label>`
 }
 
 function toDone(id){
@@ -161,8 +165,8 @@ function handleTask(js_task, pushInHead) {
   reloadModel()
 }
 
-function taskToJson(title, desc) {
-  return JSON.stringify({"title":title, "desc":desc, "isdone":false});
+function taskToJson(title) {
+  return JSON.stringify({"title":title, "isdone":false});
 }
 
 function loadData() {
@@ -173,12 +177,12 @@ function loadData() {
 
 function submitTask() {
   var title = "title";
-  var desc = "desc";
+//  var desc = "desc";
   var title_v = document.getElementById(title).value;
-  var desc_v = document.getElementById(desc).value;
+//  var desc_v = document.getElementById(desc).value;
   if (!title_v.Empty) {
     fetch(new Request("/task",
-        {"method":"POST", "body":taskToJson(title_v, desc_v)})
+        {"method":"POST", "body":taskToJson(title_v)})
     )
     .then(function(resp) {
       return resp.text()
@@ -201,9 +205,5 @@ function enterPressSubmitTask(event) {
 }
 
 addHandler("title", "keypress", enterPressSubmitTask)
-
-addHandler("desc", "keypress", enterPressSubmitTask)
-
-//addHandler("edit-submit", "click", (e) => editTaskSubmit())
 
 loadData();
