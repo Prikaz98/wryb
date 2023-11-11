@@ -9,17 +9,19 @@
 (deftest json-mapping
   (testing "Task mapping from json"
     (let [now (now)
-          expected (->Task "id" "cook" "after dinner" false now)
+          expected (->Task "id" "cook" "after dinner" false "inbox" now)
           js-body (json/write-str {:id "id" :title "cook"
                                    :desc "after dinner" :isdone false
+                                   :category "inbox"
                                    :create-time (format-instant now)})]
       (is (= expected (task-from-json js-body))))))
 
 (deftest json-mapping
   (testing "Task mapping to json"
     (let [now (now)
-          task (->Task "id" "cook" "after dinner" false now)
+          task (->Task "id" "cook" "after dinner" false "inbox" now)
           expected (json/write-str {:id "id" :title "cook"
                                     :desc "after dinner" :isdone false
+                                    :category "inbox"
                                     :create-time (format-instant now)})]
       (is (= expected (task-to-json task))))))

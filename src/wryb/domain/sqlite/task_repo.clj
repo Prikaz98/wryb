@@ -1,4 +1,4 @@
-(ns wryb.domain.sqlite.taskrepo
+(ns wryb.domain.sqlite.task-repo
   (:require [wryb.domain.task :refer [->Task]]
             [wryb.date.instant-utils :refer [timestamp-to-instant instant-to-timestamp]]
             [wryb.domain.sqlite.connectionmanager :refer [connection]])
@@ -6,21 +6,23 @@
 
 (defn- insert-task! [t]
   (let [stmt (.prepareStatement @connection
-                                "INSERT INTO task (id, title, desc, isdone, create_time) VALUES (?,?,?,?,?);")]
+                                "INSERT INTO task (id,title,desc,isdone,category,create_time) VALUES (?,?,?,?,?,?);")]
     (.setString stmt 1 (:id t))
     (.setString stmt 2 (:title t))
     (.setString stmt 3 (:desc t))
     (.setBoolean stmt 4 (:is-done t))
-    (.setTimestamp stmt 5 (instant-to-timestamp (:create-time t)))
+    (.setString stmt 5 (:category t))
+    (.setTimestamp stmt 6 (instant-to-timestamp (:create-time t)))
     (.execute stmt)
     (.close stmt)))
 
 (defn- update-task! [t]
-  (let [stmt (.prepareStatement @connection "UPDATE task SET title=?,desc=?,isdone=? where id=?;")]
+  (let [stmt (.prepareStatement @connection "UPDATE task SET title=?,desc=?,isdone=?,category=? where id=?;")]
     (.setString stmt 1 (:title t))
     (.setString stmt 2 (:desc t))
     (.setBoolean stmt 3 (:is-done t))
-    (.setString stmt 4 (:id t))
+    (.setString stmt 4 (:category t))
+    (.setString stmt 5 (:id t))
     (.execute stmt)
     (.close stmt)))
 
@@ -38,8 +40,9 @@
           title (.getString rs "title")
           desc (.getString rs "desc")
           isdone (.getBoolean rs "isdone")
+          category (.getString rs "category")
           create-time (timestamp-to-instant (.getTimestamp rs "create_time"))]
-      (->Task id title desc isdone create-time))))
+      (->Task id title desc isdone category create-time))))
 
 (defn save! [task]
   (if (nil? (:id task))
@@ -61,6 +64,10 @@
        (let [task (task-from-result-set rs)]
          (if (nil? task) acc
              (recur (conj acc task) rs)))) '() rs)))
+
+(defn get-by-category [category]
+  (-> (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "';"))
+      (task-from-result-set)))
 
 (defn remove! [id]
   (-> (create-stmt)

@@ -1,7 +1,7 @@
 (ns wryb.router
   (:require
    [clojure.string :refer [join]]
-   [wryb.domain.sqlite.taskrepo :as repo]
+   [wryb.domain.sqlite.task-repo :as repo]
    [ring.util.request :refer [body-string]]
    [wryb.domain.task :refer [task-from-json task-to-json]]
    [ring.util.response :refer [content-type resource-response response]]

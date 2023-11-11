@@ -1,4 +1,4 @@
-(ns wryb.domain.taskrepo
+(ns wryb.domain.task-repo
   (:import (java.util UUID)))
 
 ;;depricated use sqlite storage

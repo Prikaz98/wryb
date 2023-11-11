@@ -3,5 +3,13 @@ CREATE TABLE IF NOT EXISTS task (
     title varchar(1000),
     "desc" text,
     isdone boolean,
-    create_time timestamp
+    create_time timestamp,
+    category varchar(255) default "inbox"
 );
+
+CREATE TABLE IF NOT EXISTS category (
+    id varchar(255) primary key,
+    name VARCHAR(255)
+);
+
+INSERT INTO category(id,name) values ("2c279911-80f3-4446-9fb6-d188ba34f195","inbox");
