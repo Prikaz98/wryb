@@ -2,9 +2,11 @@ console.log("script is working")
 
 var model = {
     newTasks : [],
-    doneTasks : []
+    doneTasks : [],
+    categories : []
 }
 var editModel = null;
+var currentCategory = { name : "inbox" };
 
 function editTaskSubmit() {
   if(editModel == null) return;
@@ -35,6 +37,20 @@ function reloadEditView() {
   document.getElementById("edit-desc").value = desc
 }
 
+function reloadTasksList() {
+  fetch(new Request("/tasks-q?category=" + currentCategory.name, {"method":"GET"}))
+  .then((resp) => { return resp.text()})
+  .then((body) => {
+    if(!body.Empty) {
+      JSON.parse(body)
+      .forEach((el) => {
+        handleTask(el, false)
+      })
+      reloadModel()
+    }
+  })
+}
+
 function updateEditView(divId) {
   editTaskSubmit()
 
@@ -44,36 +60,62 @@ function updateEditView(divId) {
   reloadEditView()
 }
 
+function updateTaskList(divId) {
+  editTaskSubmit()
+
+  model.doneTasks = []
+  model.newTasks = []
+  let taskId = divId.substring(3, divId.length)
+  let category = model.categories.find((el) => el.id == taskId)
+  currentCategory = category;
+  reloadTasksList()
+}
+
 
 function checkExistsAndMakeTaskElement(task_json) {
-  var uuid = task_json.id
+  let uuid = task_json.id
   let rowId = "div" + uuid
 
   let title = task_json.title
   let desc = task_json.desc
   let isdone = task_json.isdone
 
-  let rowElement = createDiv(`${createCheckBoxDoneTask(uuid, isdone)}${createTitleLabel(title)} ${createDeleteButton(uuid)}<br>${createDescLabel(desc)}`, rowId);
+  let rowElement = createDivTask(`${createCheckBoxDoneTask(uuid, isdone)}${createTitleLabel(title)} ${createDeleteButton(uuid)}<br>${createDescLabel(desc)}`, rowId);
+  return rowElement;
+}
+
+function categoryToHtml(category) {
+  let uuid = category.id
+  let rowId = "div" + uuid
+  let rowElement = createDivCategory(`${createTitleLabel(category.name)}`, rowId);
   return rowElement;
 }
 
 function reloadModel() {
   document.getElementById("new-task").innerHTML = null
   document.getElementById("done-task").innerHTML = null
+  document.getElementById("categories").innerHTML = null
 
   let newTasks = model.newTasks.map(checkExistsAndMakeTaskElement).join("")
   document.getElementById("new-task").innerHTML += newTasks
 
   let doneTasks = model.doneTasks.map(checkExistsAndMakeTaskElement).join("")
   document.getElementById("done-task").innerHTML += doneTasks
+
+  let categorylist = model.categories.map(categoryToHtml).join("")
+  document.getElementById("categories").innerHTML += categorylist
 }
 
 function clearElement(id) {
   return document.getElementById(id).value = null
 }
 
-function createDiv(args, id) {
+function createDivTask(args, id) {
   return `<div id="${id}" onclick="updateEditView(id)">${args}</div>`
+}
+
+function createDivCategory(args, id) {
+  return `<div id="${id}" onclick="updateTaskList(id)">${args}</div>`
 }
 
 function addHandler(id, type, fun) {
@@ -104,7 +146,7 @@ function toDone(id){
   ).then(function(resp) {
     return resp.text()
   }).then(function(body) {
-    return handleTask(JSON.parse(body), true)
+    handleTask(JSON.parse(body), true)
   });
 }
 
@@ -145,6 +187,11 @@ function removeIfFind(arr, predicate) {
   }
 }
 
+function handleCategory(js_category) {
+  removeIfFind(model.categories, (el) => el.id == js_category.id)
+  model.categories.push(js_category)
+}
+
 function handleTask(js_task, pushInHead) {
   if(js_task.isdone) {
     removeIfFind(model.newTasks, (el) => el.id == js_task.id)
@@ -166,20 +213,37 @@ function handleTask(js_task, pushInHead) {
 }
 
 function taskToJson(title) {
-  return JSON.stringify({"title":title, "isdone":false});
+  return JSON.stringify({"title":title, "isdone":false, "category":currentCategory.name});
 }
 
 function loadData() {
+  fetch(new Request("/categories", {"method":"GET"}))
+   .then((resp) => { return resp.text()})
+   .then((body) => {
+     if(!body.Empty) {
+       JSON.parse(body)
+       .forEach((el) => {
+         console.log(el)
+         handleCategory(el)
+       })
+     }
+   })
+
   fetch(new Request("/tasks", {"method":"GET"}))
   .then((resp) => { return resp.text()})
-  .then((body) => { if(!body.Empty) { JSON.parse(body).forEach( (el) => handleTask(el, false) ) } } )
+  .then((body) => {
+    if(!body.Empty) {
+      JSON.parse(body)
+      .forEach((el) => {
+        handleTask(el, false)
+      })
+    }
+  })
 }
 
 function submitTask() {
   var title = "title";
-//  var desc = "desc";
   var title_v = document.getElementById(title).value;
-//  var desc_v = document.getElementById(desc).value;
   if (!title_v.Empty) {
     fetch(new Request("/task",
         {"method":"POST", "body":taskToJson(title_v)})
@@ -192,9 +256,8 @@ function submitTask() {
     });
 
     clearElement(title)
-    clearElement(desc);
   }
-};
+}
 
 function enterPressSubmitTask(event) {
   console.log(event.keyCode)

@@ -6,11 +6,10 @@
             [wryb.domain.task :refer [task-from-json task-to-json]]
             [wryb.domain.category :as category]
             [ring.util.response :refer [content-type resource-response response]]
-            [clojure.data.json :as json]
-            [wryb.api :as api]))
+            [clojure.data.json :as json]))
 
 (defn- to-array-js [data-list to-json]
-  (if (empty? data-list) nil
+  (if (empty? data-list) "[]"
       (concat "[" (join "," (map (fn [el] (to-json el)) data-list)) "]")))
 
 (defn- task-list

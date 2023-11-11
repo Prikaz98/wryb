@@ -58,16 +58,19 @@
   (-> (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE id='" id "';"))
       (task-from-result-set)))
 
+(defn- resultset-to-list [rs]
+  ((fn [acc rs]
+     (let [task (task-from-result-set rs)]
+       (if (nil? task) acc
+           (recur (conj acc task) rs)))) '() rs))
+
 (defn get-all []
   (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY create_time DESC;"))]
-    ((fn [acc rs]
-       (let [task (task-from-result-set rs)]
-         (if (nil? task) acc
-             (recur (conj acc task) rs)))) '() rs)))
+    (resultset-to-list rs)))
 
 (defn get-by-category [category]
-  (-> (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "';"))
-      (task-from-result-set)))
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "' ORDER BY create_time DESC;"))]
+    (resultset-to-list rs)))
 
 (defn remove! [id]
   (-> (create-stmt)

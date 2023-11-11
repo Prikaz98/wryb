@@ -58,4 +58,4 @@
     (let [category "working11"
           saved (save! (->Task nil "hello" "after mornign" false "working222" (now)))
           all-by-category (get-by-category "working222")]
-      (is (tasks-equeal saved all-by-category)))))
+      (is (tasks-equeal saved (first all-by-category))))))
