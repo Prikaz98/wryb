@@ -40,12 +40,14 @@
 
 (defn handle-store-task! [request]
   (-> request
+      ;;(logging!)
       (store-task!)
       (response)
       (app-json)))
 
 (defn handle-remove-task! [request]
   (-> request
+      ;;(logging!)
       (remove-task!)
       (response)))
 
