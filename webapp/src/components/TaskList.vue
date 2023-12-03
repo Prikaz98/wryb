@@ -2,29 +2,25 @@
   <div>
 
     <div>
-  <input v-bind:class="[inputIsEmpty ? emptyInputTitle : fillInputTitle]" v-model="newTask" type="text" placeholder="task" v-on:keyup.enter="submitTask()"/>
+      <input v-bind:class="[inputIsEmpty ? emptyInputTitle : fillInputTitle]" v-model="newTask" type="text" placeholder="task" v-on:keyup.enter="submitTask()"/>
     </div>
 
     <div class="listTask new">
       <label>Overdue:</label><br>
-      <ul>
         <div v-for="task in tasks" v-if="!task.isdone" @click="gotoedit(task)">
           <input v-model="task.isdone" type="checkbox"/>
           {{task.title}}
           <button @click="toDelete(task)" style="float:right">x</button>
         </div>
-      </ul>
     </div>
 
     <div class="listTask done">
       <label>Done:</label><br>
-      <ul>
-          <div v-for="task in tasks" v-if="task.isdone" @click="gotoedit(task)">
-            <input v-model="task.isdone" type="checkbox"/>
-            {{task.title}}
-            <button @click="toDelete(task)" style="float:right">x</button>
-          </div>
-      </ul>
+        <div v-for="task in tasks" v-if="task.isdone" @click="gotoedit(task)">
+          <input v-model="task.isdone" type="checkbox"/>
+          {{task.title}}
+          <button @click="toDelete(task)" style="float:right">x</button>
+        </div>
     </div>
   </div>
 </template>
@@ -34,13 +30,13 @@ import axios from '../wryb-axios';
 
 export default {
   name: 'TaskList',
+  props: ['category'],
   data () {
     return {
       emptyInputTitle : 'empty input title',
       fillInputTitle : 'input title',
       inputIsEmpty: true,
       newTask : '',
-      category : 'inbox',
       tasks: []
     }
   },
@@ -48,15 +44,16 @@ export default {
     this.fetchData()
   },
   watch: {
+    category: function (new_, old) {
+      this.tasks = []
+      this.fetchData()
+    },
     newTask: function (new_, old) {
-      console.log(new_)
       if (new_ == '' || new_ == null) {
-        console.log('inputIsEmpty == true')
         this.inputIsEmpty = true
         return;
       }
 
-      console.log('inputIsEmpty == false')
       this.inputIsEmpty = false
     }
   },
@@ -65,7 +62,7 @@ export default {
   },
   methods: {
     fetchData : function() {
-      axios.get("/tasks?category=" + this.category)
+      axios.get("/tasks?category=" + this.category.name)
         .then((resp) => {
           resp.data.forEach((el) => {
             this.tasks.push(el)
@@ -73,7 +70,6 @@ export default {
         })
     },
     toDelete: function(task) {
-      console.log('to remove ' + task.id)
       axios({
         method: 'delete',
         url : '/task',
@@ -84,14 +80,13 @@ export default {
     },
     submitTask: function() {
       let title = this.newTask
-      console.log(title)
       axios({
         method: 'post',
         url: '/task',
         data: {
           title: title,
           isdone: false,
-          category: this.category
+          category: this.category.name
         }
       }).then((resp) => {
         this.tasks.unshift(resp.data)
@@ -99,7 +94,6 @@ export default {
       })
     },
     gotoedit : function(task) {
-      console.log("push the event " + task + " gotoedit")
       this.$emit('gotoedit', task)
     }
   }
@@ -126,12 +120,12 @@ export default {
 }
 
 .input {
-  padding: 5px 5px 5px 5px;
+  padding: 5px 0px 5px 5px;
   font-size: medium;
 }
 
 .title {
-  width: 97%;
+  width: 100%;
   margin:auto;
   border-radius: 5px;
   border-width: 0px;

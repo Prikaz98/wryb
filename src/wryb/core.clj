@@ -6,8 +6,7 @@
 
 (defroutes routes
   (GET "/" [] (router/handle-mainpage))
-  (GET "/tasks" [] (router/handle-tasks))
-  (GET "/tasks-q" {params :query-params} (router/handle-tasks (get params "category")))
+  (GET "/tasks" {params :query-params} (router/handle-tasks (get params "category")))
   (POST "/task" request (router/handle-store-task! request))
   (DELETE "/task" request (router/handle-remove-task! request))
   (GET "/categories" [] (router/handle-categories)))

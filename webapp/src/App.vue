@@ -1,28 +1,30 @@
-
 <template>
   <div>
-    <div>
-      <button @click="toggleEdit()">Hide Edit Panel</button>
-   </div>
-    <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : splitMiddleClass ]" @gotoedit="selectTask"/>
-    <TaskEdit v-if="!isHiddedEdit" class="split right" v-bind:task="editedTask"/>
+    <button @click="toggleEdit()">Hide Edit Panel</button>
+    <TaskCategory @switchcategory="selectCategory" class="category"/>
+    <div class="content">
+      <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : splitMiddleClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
+      <TaskEdit v-if="!isHiddedEdit" class="split right" v-bind:task="editedTask"/>
+    </div>
   </div>
 </template>
 
 <script>
 import TaskList from './components/TaskList'
 import TaskEdit from './components/TaskEdit'
+import TaskCategory from './components/TaskCategory'
 
 export default {
   name: 'App',
   components: {
-    TaskList, TaskEdit
+    TaskList, TaskEdit, TaskCategory
   },
   data(){
     return {
-      splitMiddleClass : 'split middle',
+      splitMiddleClass : 'split',
       fullscreenClass : 'fullscreen',
       editedTask : { title : '', desc : '' },
+      currentCategory : {},
       isHiddedEdit : false
     }
   },
@@ -41,12 +43,29 @@ export default {
         return;
       }
       this.isHiddedEdit = true
+    },
+    selectCategory : function(category) {
+      this.currentCategory = category
     }
   }
 }
 </script>
 
 <style>
+
+.category {
+  margin: 15px 5px 5px 5px;
+  height: 100%;
+  width: 10%;
+  position: fixed;
+  z-index: 1;
+  left: 0px;
+}
+
+.content {
+  margin-left: 10%;
+  padding-left: 20px;
+}
 
 body {
   font: normal 16px "Trebuchet MS", Helvetica, sans-serif;
@@ -55,7 +74,7 @@ body {
 
 .fullscreen {
   margin: auto;
-  width: 99%;
+  width: 98%;
   height: 100%;
   z-index: 1;
   overflow-x: hidden;
@@ -63,16 +82,12 @@ body {
 }
 
 .split {
-  width: 49%;
+  width: 43%;
   height: 100%;
   position: fixed;
   z-index: 1;
   overflow-x: hidden;
   padding-top: 15px;
-}
-
-.middle {
-  left: 5px;
 }
 
 .right {
