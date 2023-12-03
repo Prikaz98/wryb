@@ -1,10 +1,11 @@
 <template>
   <div>
     <button @click="toggleEdit()">Hide Edit Panel</button>
+    <button v-if="!isHiddedEdit" @click="toggleEditOrientation()">Toggle split</button>
     <TaskCategory @switchcategory="selectCategory" class="category"/>
     <div class="content">
-      <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : splitMiddleClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
-      <TaskEdit v-if="!isHiddedEdit" class="split right" v-bind:task="editedTask"/>
+      <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : isVerticalEdit ? taskListSplitVClass : taskListSplitHClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
+      <TaskEdit v-if="!isHiddedEdit" v-bind:class="[ isVerticalEdit ? taskEditSplitRightClass : taskEditSplitBottomClass ]" v-bind:task="editedTask"/>
     </div>
   </div>
 </template>
@@ -21,11 +22,15 @@ export default {
   },
   data(){
     return {
-      splitMiddleClass : 'split',
+      taskListSplitVClass : 'split',
+      taskListSplitHClass : 'splitH top',
+      taskEditSplitRightClass: 'split right',
+      taskEditSplitBottomClass: 'splitH bottom',
       fullscreenClass : 'fullscreen',
       editedTask : { title : '', desc : '' },
       currentCategory : {},
-      isHiddedEdit : false
+      isHiddedEdit : false,
+      isVerticalEdit : true,
     }
   },
   methods : {
@@ -46,6 +51,9 @@ export default {
     },
     selectCategory : function(category) {
       this.currentCategory = category
+    },
+    toggleEditOrientation : function() {
+      this.isVerticalEdit = !this.isVerticalEdit
     }
   }
 }
@@ -63,8 +71,7 @@ export default {
 }
 
 .content {
-  margin-left: 10%;
-  padding-left: 20px;
+  margin-left: 15%;
 }
 
 body {
@@ -73,12 +80,11 @@ body {
 }
 
 .fullscreen {
-  margin: auto;
-  width: 98%;
+  width: 95%;
   height: 100%;
   z-index: 1;
   overflow-x: hidden;
-  padding-top: 15px;
+  margin-top : 15px;
 }
 
 .split {
@@ -87,7 +93,23 @@ body {
   position: fixed;
   z-index: 1;
   overflow-x: hidden;
-  padding-top: 15px;
+  margin-top : 15px;
+}
+
+.splitH {
+  width: 95%;
+  height: 50%;
+  z-index: 1;
+  overflow-x: hidden;
+  margin-top : 15px;
+}
+
+.bottom {
+  top: 50%;
+}
+
+.top {
+  height: 350px;
 }
 
 .right {

@@ -125,17 +125,17 @@ export default {
 }
 
 .title {
-  width: 100%;
-  margin:auto;
+  width: 98%;
+  margin: 0px 0px 5px 0px;
   border-radius: 5px;
   border-width: 0px;
-  margin-bottom: 7px;
 }
 
 .desc {
-  width: 90%;
-  margin: auto;
-  border-radius: 5px;
+  width: 98%;
+  margin: 0px 0px 0px 0px;
+  border-radius:5px;
+  border-width:0px;
 }
 
 .listTask div {
