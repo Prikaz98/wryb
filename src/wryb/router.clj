@@ -45,10 +45,6 @@
 
 (json/write-str '(1 2 3))
 
-(defn- to-array-js [data-list to-json]
-  (if (empty? data-list) "[]"
-      (concat "[" (join "," (map (fn [el] (to-json el)) data-list)) "]")))
-
 (defn handle-mainpage []
   (resource-response "public/index.html"))
 
@@ -61,14 +57,11 @@
     (t-repo/remove! id)
     id))
 
-(defn- category-list []
-  (to-array-js (c-repo/get-all) category/to-json))
-
 (defn- store-task! [new-task]
   (t-repo/save! new-task))
 
 (defn handle-remove-task! [request]
-  (default-handle request (fn [body] (remove-task! body))))
+  (default-handle request (fn [json-body] (remove-task! json-body))))
 
 (defn handle-store-task! [request]
   (default-handle request (fn [json-body] (store-task! (task-from-json json-body)))))
@@ -78,7 +71,7 @@
   ([request category] (default-handle request (fn [body] (task-list category)))))
 
 (defn handle-get-categories []
-  (app-json (response (category-list))))
+  (default-handle nil (fn [body] (c-repo/get-all))))
 
 (defn handle-category-save! [request]
   (default-handle request (fn [json-body] (c-repo/save! (category/from-json json-body)))))
@@ -88,7 +81,7 @@
   (let [category (c-repo/get-by-id id)
         tasks    (t-repo/get-by-category (:name category))]
     (if (= 0 (count tasks)) (do (c-repo/remove! id) {:id id})
-        {:error (str "Couldn't remove category by " id ". Cause there're " (count tasks) " tasks")})))
+        {:error (str "Couldn't remove category with " (:name category) ". Cause there're " (count tasks) " tasks")})))
 
 (defn handle-category-remove! [request]
   (default-handle request (fn [body] (remove-category (get body "id")))))

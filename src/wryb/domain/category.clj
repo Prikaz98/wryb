@@ -8,7 +8,6 @@
   (json/write-str {:id (:id c)
                    :name (:name c)}))
 
-(defn from-json [str]
-  (let [json-str (json/read-str str)]
+(defn from-json [json-str]
     (->Category (get json-str "id")
-                (get json-str "name"))))
+                (get json-str "name")))

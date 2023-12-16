@@ -3,7 +3,8 @@
    [compojure.core :refer [defroutes DELETE GET POST]]
    [compojure.handler :refer [api]]
    [ring.middleware.resource :refer [wrap-resource]]
-   [wryb.router :as router]))
+   [wryb.router :as router]
+   [ring.util.request :as request]))
 
 (defroutes routes
   (GET "/" [] (router/handle-mainpage))
