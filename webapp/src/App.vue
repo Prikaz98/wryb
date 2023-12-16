@@ -22,7 +22,7 @@ export default {
   },
   data(){
     return {
-      taskListSplitVClass : 'split',
+      taskListSplitVClass : 'split left',
       taskListSplitHClass : 'splitH top',
       taskEditSplitRightClass: 'split right',
       taskEditSplitBottomClass: 'splitH bottom',
@@ -71,7 +71,7 @@ export default {
 }
 
 .content {
-  margin-left: 15%;
+  margin-left: 13%;
 }
 
 body {
@@ -96,6 +96,7 @@ body {
   margin-top : 15px;
 }
 
+
 .splitH {
   width: 95%;
   height: 50%;
@@ -113,7 +114,7 @@ body {
 }
 
 .right {
-  right: 5px;
+  right: 0px;
 }
 
 </style>

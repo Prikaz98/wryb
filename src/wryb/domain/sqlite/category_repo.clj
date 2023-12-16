@@ -38,9 +38,9 @@
           name (.getString rs "name")]
       (->Category id name))))
 
-(defn remove! [c]
+(defn remove! [id]
   (-> (create-stmt)
-      (.executeUpdate (str "DELETE FROM category WHERE id='" (:id c) "';"))))
+      (.executeUpdate (str "DELETE FROM category WHERE id='" id "';"))))
 
 (defn get-all []
   (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM category;"))]
@@ -48,3 +48,7 @@
        (let [c (category-from-result-set rs)]
          (if (nil? c) acc
              (recur (conj acc c) rs)))) '() rs)))
+
+(defn get-by-id [id]
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM category WHERE id = '" id "';"))]
+    (category-from-result-set rs)))

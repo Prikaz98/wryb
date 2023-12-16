@@ -18,5 +18,13 @@
     (let [c (->Category nil "work")
           saved (repo/save! c)
           all-size (count (repo/get-all))]
-      (repo/remove! saved)
+      (repo/remove! (:id saved))
       (is (= (- all-size 1) (count (repo/get-all)))))))
+
+(deftest insert-and-get-by-id-category
+  (testing "insert and get by id"
+    (cm/init-connection ":memory:")
+    (let [c (->Category nil "work")
+          saved (repo/save! c)
+          got (repo/get-by-id (:id saved))]
+      (is (= saved got)))))

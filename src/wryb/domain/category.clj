@@ -1,6 +1,6 @@
 (ns wryb.domain.category
-  (:require [clojure.data.json :as json]
-            [wryb.util.option :refer [get-or-else]]))
+  (:require
+   [clojure.data.json :as json]))
 
 (defrecord Category [id name])
 

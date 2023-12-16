@@ -85,7 +85,7 @@ export default {
         url: '/task',
         data: {
           title: title,
-          isdone: false,
+          'is-done': false,
           category: this.category.name
         }
       }).then((resp) => {

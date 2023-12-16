@@ -1,8 +1,11 @@
 (ns wryb.domain.sqlite.task-repo
-  (:require [wryb.domain.task :refer [->Task]]
-            [wryb.date.instant-utils :refer [timestamp-to-instant instant-to-timestamp]]
-            [wryb.domain.sqlite.connectionmanager :refer [connection]])
-  (:import (java.util UUID)))
+  (:require
+   [wryb.date.instant-utils :refer [instant-to-timestamp timestamp-to-instant]]
+   [wryb.domain.sqlite.connectionmanager :refer [connection]]
+   [wryb.domain.task :refer [->Task]]
+   [clojure.tools.logging :refer [info]])
+  (:import
+   (java.util UUID)))
 
 (defn- insert-task! [t]
   (let [stmt (.prepareStatement @connection
@@ -45,6 +48,7 @@
       (->Task id title desc isdone category create-time))))
 
 (defn save! [task]
+  (info task)
   (if (nil? (:id task))
     (let [id (str (UUID/randomUUID))
           new-task (assoc task :id id)]
