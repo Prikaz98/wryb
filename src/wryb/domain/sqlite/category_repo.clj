@@ -1,7 +1,9 @@
 (ns wryb.domain.sqlite.category-repo
-  (:require [wryb.domain.sqlite.connectionmanager :refer [connection]]
-            [wryb.domain.category :refer [->Category]])
-  (:import (java.util UUID)))
+  (:require
+   [wryb.domain.category :refer [->Category]]
+   [wryb.domain.sqlite.connectionmanager :refer [connection]])
+  (:import
+   (java.util UUID)))
 
 (defn- create-stmt []
   (.createStatement @connection))

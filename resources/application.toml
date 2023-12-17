@@ -7,4 +7,6 @@ name = "Prikaznov Ivan"
 path = "/home/ivan/tmp/task.db" #if you use this app you have to rewrite this
 
 [server]
+store = "crt/cert.jks"
+pass = "shittyhacker"
 port = 3000

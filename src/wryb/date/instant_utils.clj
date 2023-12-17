@@ -1,7 +1,8 @@
 (ns wryb.date.instant-utils
-  (:import (java.time Instant)
-           (java.time.format DateTimeFormatter)
-           (java.sql Timestamp)))
+  (:import
+   (java.sql Timestamp)
+   (java.time Instant)
+   (java.time.format DateTimeFormatter)))
 
 (defn now [] (Instant/now))
 

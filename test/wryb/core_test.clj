@@ -1,27 +1,19 @@
 (ns wryb.core-test
   (:require
    [clojure.data.json :as json]
-   [clojure.test :refer [deftest testing is]]
+   [clojure.test :refer [deftest is testing]]
    [wryb.core :refer :all]
-   [wryb.date.instant-utils :refer [now format-instant]]
+   [wryb.date.instant-utils :refer [now]]
    [wryb.domain.task :refer :all]))
 
 (deftest json-mapping-1
   (testing "Task mapping from json"
     (let [now (now)
           expected (->Task "id" "cook" "after dinner" false "inbox" now)
-          js-body (json/write-str {:id "id" :title "cook"
-                                   :desc "after dinner" :isdone false
+          js-body (json/write-str {:id "id"
+                                   :title "cook"
+                                   :desc "after dinner"
+                                   :isdone false
                                    :category "inbox"
-                                   :create-time (format-instant now)})]
-      (is (= expected (task-from-json js-body))))))
-
-(deftest json-mapping-2
-  (testing "Task mapping to json"
-    (let [now (now)
-          task (->Task "id" "cook" "after dinner" false "inbox" now)
-          expected (json/write-str {:id "id" :title "cook"
-                                    :desc "after dinner" :isdone false
-                                    :category "inbox"
-                                    :create-time (format-instant now)})]
-      (is (= expected (task-to-json task))))))
+                                   :createtime now})]
+      (is (= expected (task-from-json (json/read-str js-body)))))))

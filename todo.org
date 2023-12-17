@@ -1,0 +1,9 @@
+#+titile: todo list
+#+author: iprikaznov
+
+* Goals
+Make useful applicatoin for managing deals
+
+* plans
+** DONE Add logging
+** DONE fix bug with adding catgory

@@ -1,9 +1,9 @@
 (ns wryb.domain.sqlite.task-repo
   (:require
+   [clojure.tools.logging :refer [info]]
    [wryb.date.instant-utils :refer [instant-to-timestamp timestamp-to-instant]]
    [wryb.domain.sqlite.connectionmanager :refer [connection]]
-   [wryb.domain.task :refer [->Task]]
-   [clojure.tools.logging :refer [info]])
+   [wryb.domain.task :refer [->Task]])
   (:import
    (java.util UUID)))
 
@@ -13,9 +13,9 @@
     (.setString stmt 1 (:id t))
     (.setString stmt 2 (:title t))
     (.setString stmt 3 (:desc t))
-    (.setBoolean stmt 4 (:is-done t))
+    (.setBoolean stmt 4 (:isdone t))
     (.setString stmt 5 (:category t))
-    (.setTimestamp stmt 6 (instant-to-timestamp (:create-time t)))
+    (.setTimestamp stmt 6 (instant-to-timestamp (:createtime t)))
     (.execute stmt)
     (.close stmt)))
 
@@ -23,7 +23,7 @@
   (let [stmt (.prepareStatement @connection "UPDATE task SET title=?,desc=?,isdone=?,category=? where id=?;")]
     (.setString stmt 1 (:title t))
     (.setString stmt 2 (:desc t))
-    (.setBoolean stmt 3 (:is-done t))
+    (.setBoolean stmt 3 (:isdone t))
     (.setString stmt 4 (:category t))
     (.setString stmt 5 (:id t))
     (.execute stmt)

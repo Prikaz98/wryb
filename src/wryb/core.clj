@@ -3,12 +3,11 @@
    [compojure.core :refer [defroutes DELETE GET POST]]
    [compojure.handler :refer [api]]
    [ring.middleware.resource :refer [wrap-resource]]
-   [wryb.router :as router]
-   [ring.util.request :as request]))
+   [wryb.router :as router]))
 
 (defroutes routes
   (GET "/" [] (router/handle-mainpage))
-  (GET "/tasks" {params :query-params} (router/handle-tasks params (get params "category")))
+  (GET "/tasks" {params :query-params} (router/handle-tasks (get params "category")))
   (POST "/task" request (router/handle-store-task! request))
   (DELETE "/task" request (router/handle-remove-task! request))
   (GET "/categories" [] (router/handle-get-categories))

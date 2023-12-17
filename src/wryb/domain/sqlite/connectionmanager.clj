@@ -1,9 +1,8 @@
 (ns wryb.domain.sqlite.connectionmanager
-  (:require [clojure.java.io :as io])
-  (:import (java.sql DriverManager
-                     ResultSet
-                     Connection
-                     Statement)))
+  (:require
+   [clojure.java.io :as io])
+  (:import
+   (java.sql DriverManager)))
 
 (defn load-migration-scripts []
   (slurp (io/resource "db/ddl.sql")))

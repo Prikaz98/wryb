@@ -12,7 +12,7 @@
 (deftest update-test
   (testing "Update data test"
     (let [task (repo/save! (->Task nil "cook" nil false "inbox" (now)))
-          updated (assoc task :title "recover" :is-done true)]
+          updated (assoc task :title "recover" :isdone true)]
       (repo/save! updated)
       (is (= updated (repo/get-by-id (:id updated)))))))
 

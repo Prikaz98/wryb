@@ -1,9 +1,10 @@
 <template>
   <div>
+    <button @click="toggleCategory()">Hide Category</button>
     <button @click="toggleEdit()">Hide Edit Panel</button>
     <button v-if="!isHiddedEdit" @click="toggleEditOrientation()">Toggle split</button>
-    <TaskCategory @switchcategory="selectCategory" class="category"/>
-    <div class="content">
+    <TaskCategory v-if="!isHiddedCategory" @switchcategory="selectCategory" class="category"/>
+    <div v-bind:class="[ !isHiddedCategory ? content : withoutcategory]">
       <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : isVerticalEdit ? taskListSplitVClass : taskListSplitHClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
       <TaskEdit v-if="!isHiddedEdit" v-bind:class="[ isVerticalEdit ? taskEditSplitRightClass : taskEditSplitBottomClass ]" v-bind:task="editedTask"/>
     </div>
@@ -26,11 +27,14 @@ export default {
       taskListSplitHClass : 'splitH top',
       taskEditSplitRightClass: 'split right',
       taskEditSplitBottomClass: 'splitH bottom',
+      content : "content",
+      withoutcategory : "withoutcategory",
       fullscreenClass : 'fullscreen',
       editedTask : { title : '', desc : '' },
       currentCategory : {},
       isHiddedEdit : false,
       isVerticalEdit : true,
+      isHiddedCategory : false
     }
   },
   methods : {
@@ -48,6 +52,13 @@ export default {
         return;
       }
       this.isHiddedEdit = true
+    },
+    toggleCategory: function() {
+      if(this.isHiddedCategory) {
+        this.isHiddedCategory = false
+        return;
+      }
+      this.isHiddedCategory = true
     },
     selectCategory : function(category) {
       this.currentCategory = category
@@ -68,6 +79,10 @@ export default {
   position: fixed;
   z-index: 1;
   left: 0px;
+}
+
+.withoutcategory {
+  margin-left: 2%;
 }
 
 .content {
