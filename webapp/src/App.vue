@@ -153,4 +153,8 @@ body {
   right: 0px;
 }
 
+.b-managment {
+  margin:5px;
+}
+
 </style>

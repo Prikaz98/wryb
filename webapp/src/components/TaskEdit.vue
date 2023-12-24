@@ -1,11 +1,9 @@
 <template>
   <div>
-    Deadline:
-    <input type="date">
     <input type="text" placeholder="edit task" v-model="task.title" class="title input">
     <textarea cols="30" placeholder="description" rows="10" v-model="task.desc" class="desc input"/>
 
-    Create time: {{new Date(task.createtime).toLocaleString()}}
+    {{new Date(task.createtime).toLocaleString()}}
   </div>
 </template>
 

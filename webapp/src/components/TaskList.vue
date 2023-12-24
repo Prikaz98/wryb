@@ -50,6 +50,7 @@ export default {
     category: function (new_, old) {
       this.tasks = []
       this.isHidedDoneTasks = false;
+      this.$emit('gotoedit', {})
       this.fetchData()
     },
     newTask: function (new_, old) {
@@ -133,17 +134,17 @@ export default {
 }
 
 .title {
-  width: 98%;
-  margin: 0px 0px 5px 0px;
+  width: 99%;
+  margin: 0px 5px 5px 0px;
   border-radius: 5px;
   border-width: 0px;
 }
 
 .desc {
-  width: 98%;
-  margin: 0px 0px 0px 0px;
+  width: 99%;
+  margin: 0px 5px 5px 0px;
   border-radius:5px;
-  border-width:0px;
+  border-width:1px;
 }
 
 .listTask .task-row {
