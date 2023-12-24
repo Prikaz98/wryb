@@ -33,4 +33,5 @@
          store (get serverconf "store")
          password (get serverconf "pass")]
      (init-connection (get dbconf "path"))
-     (jetty/run-jetty w-core/app {:port (get serverconf "port") :join? false :ssl? true :ssl-context (configureSSLContext store password)}))))
+     ;;(jetty/run-jetty w-core/app {:port (get serverconf "port") :join? false :ssl? false :ssl-context (configureSSLContext store password)}))))
+     (jetty/run-jetty w-core/app {:port (get serverconf "port") :join? false }))))

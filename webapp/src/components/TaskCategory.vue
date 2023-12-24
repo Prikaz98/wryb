@@ -11,27 +11,15 @@ import axios from '../wryb-axios';
 
 export default {
   name : 'TaskCategory',
+  props: ['categories'],
   data () {
     return {
-      categories : [],
       selectedId : null,
       selected : 'element selected',
       nonselected : 'element default'
     }
   },
-  mounted() {
-    this.fetchData()
-  },
   methods: {
-    fetchData : function() {
-      axios.get("/categories")
-        .then((resp) => {
-          this.switchcategory(resp.data[0])
-          resp.data.forEach((el) => {
-            this.categories.push(el)
-          })
-        })
-    },
     switchcategory: function(category) {
       this.$emit('switchcategory', category)
       this.selectedId = category.id

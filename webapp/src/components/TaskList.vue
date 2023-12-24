@@ -1,13 +1,12 @@
 <template>
   <div>
-
     <div>
       <input v-bind:class="[inputIsEmpty ? emptyInputTitle : fillInputTitle]" v-model="newTask" type="text" placeholder="task" v-on:keyup.enter="submitTask()"/>
     </div>
 
     <div class="listTask new">
       <label>Overdue:</label><br>
-        <div v-for="task in tasks" v-if="!task.isdone" @click="gotoedit(task)">
+        <div class="task-row" v-for="task in tasks" v-if="!task.isdone" @click="gotoedit(task)">
           <input v-model="task.isdone" type="checkbox"/>
           {{task.title}}
           <button @click="toDelete(task)" style="float:right">x</button>
@@ -15,12 +14,15 @@
     </div>
 
     <div class="listTask done">
-      <label>Done:</label><br>
-        <div v-for="task in tasks" v-if="task.isdone" @click="gotoedit(task)">
-          <input v-model="task.isdone" type="checkbox"/>
-          {{task.title}}
-          <button @click="toDelete(task)" style="float:right">x</button>
-        </div>
+      <div style="margin:2px 0px 5px 0px">
+        <button style="float:right" @click="toggleHideDoneTasks">Hide tasks</button>
+        <label >Done:</label><br>
+      </div>
+      <div class="task-row" v-for="task in tasks" v-if="task.isdone && isHidedDoneTasks" @click="gotoedit(task)">
+        <input v-model="task.isdone" type="checkbox"/>
+        {{task.title}}
+        <button @click="toDelete(task)" style="float:right">x</button>
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +37,7 @@ export default {
     return {
       emptyInputTitle : 'empty input title',
       fillInputTitle : 'input title',
+      isHidedDoneTasks: false,
       inputIsEmpty: true,
       newTask : '',
       tasks: []
@@ -68,6 +71,9 @@ export default {
             this.tasks.push(el)
           })
         })
+    },
+    toggleHideDoneTasks : function() {
+      this.isHidedDoneTasks = !this.isHidedDoneTasks
     },
     toDelete: function(task) {
       axios({
@@ -108,6 +114,7 @@ export default {
 
 .done {
  background-color: lightsteelblue;
+ color: grey;
 }
 
 .done ul {
@@ -138,7 +145,7 @@ export default {
   border-width:0px;
 }
 
-.listTask div {
+.listTask .task-row {
   padding : 2px 2px;
   border-bottom: 1px solid;
 }

@@ -1,9 +1,14 @@
 <template>
   <div>
-    <button @click="toggleCategory()">Hide Category</button>
+    <button class="b-managment" @click="toggleCategory()">Hide Category</button>
     <button @click="toggleEdit()">Hide Edit Panel</button>
-    <button v-if="!isHiddedEdit" @click="toggleEditOrientation()">Toggle split</button>
-    <TaskCategory v-if="!isHiddedCategory" @switchcategory="selectCategory" class="category"/>
+  <button v-if="!isHiddedEdit" @click="toggleEditOrientation()" style="float:right" >Change orientation</button>
+    <button @click="toggleCreateCategoryForm()">Hide category creation</button>
+
+    <CreateCategory v-if="!isHiddedCreateCategoryForm" @newcategory="addNewCategory"/>
+
+    <TaskCategory v-if="!isHiddedCategory" @switchcategory="selectCategory" class="category" v-bind:categories="categories"/>
+
     <div v-bind:class="[ !isHiddedCategory ? content : withoutcategory]">
       <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : isVerticalEdit ? taskListSplitVClass : taskListSplitHClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
       <TaskEdit v-if="!isHiddedEdit" v-bind:class="[ isVerticalEdit ? taskEditSplitRightClass : taskEditSplitBottomClass ]" v-bind:task="editedTask"/>
@@ -12,32 +17,52 @@
 </template>
 
 <script>
+
+import axios from './wryb-axios';
 import TaskList from './components/TaskList'
 import TaskEdit from './components/TaskEdit'
 import TaskCategory from './components/TaskCategory'
+import CreateCategory from './components/CreateCategory'
 
 export default {
   name: 'App',
   components: {
-    TaskList, TaskEdit, TaskCategory
+    TaskList, TaskEdit, TaskCategory, CreateCategory
   },
   data(){
     return {
       taskListSplitVClass : 'split left',
       taskListSplitHClass : 'splitH top',
       taskEditSplitRightClass: 'split right',
-      taskEditSplitBottomClass: 'splitH bottom',
+      taskEditSplitBottomClass: 'splitH',
       content : "content",
       withoutcategory : "withoutcategory",
       fullscreenClass : 'fullscreen',
       editedTask : { title : '', desc : '' },
+      categories : [],
       currentCategory : {},
-      isHiddedEdit : false,
-      isVerticalEdit : true,
-      isHiddedCategory : false
+      isHiddedEdit : true,
+      isVerticalEdit : false,
+      isHiddedCategory : false,
+      isHiddedCreateCategoryForm: true
     }
   },
+  mounted() {
+    this.fetchData()
+  },
   methods : {
+    fetchData: function(){
+      axios.get("/categories")
+        .then((resp) => {
+          resp.data.forEach((el) => {
+            console.log(el)
+            this.categories.push(el)
+          })
+        })
+    },
+    toggleCreateCategoryForm: function() {
+      this.isHiddedCreateCategoryForm = !this.isHiddedCreateCategoryForm
+    },
     selectTask: function(task) {
       this.isHiddedEdit = false
       if(this.editedTask.id != null) {
@@ -47,21 +72,17 @@ export default {
       this.editedTask = task
     },
     toggleEdit: function() {
-      if(this.isHiddedEdit) {
-        this.isHiddedEdit = false
-        return;
-      }
-      this.isHiddedEdit = true
+      this.isHiddedEdit = !this.isHiddedEdit
     },
     toggleCategory: function() {
-      if(this.isHiddedCategory) {
-        this.isHiddedCategory = false
-        return;
-      }
-      this.isHiddedCategory = true
+      this.isHiddedCategory = !this.isHiddedCategory
     },
     selectCategory : function(category) {
       this.currentCategory = category
+    },
+    addNewCategory: function(category){
+      console.log(category)
+      this.categories.push(category)
     },
     toggleEditOrientation : function() {
       this.isVerticalEdit = !this.isVerticalEdit
