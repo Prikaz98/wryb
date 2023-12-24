@@ -18,7 +18,7 @@
         <button style="float:right" @click="toggleHideDoneTasks">Hide tasks</button>
         <label >Done:</label><br>
       </div>
-      <div class="task-row" v-for="task in tasks" v-if="task.isdone && isHidedDoneTasks" @click="gotoedit(task)">
+      <div class="task-row" v-for="task in tasks" v-if="task.isdone && !isHidedDoneTasks" @click="gotoedit(task)">
         <input v-model="task.isdone" type="checkbox"/>
         {{task.title}}
         <button @click="toDelete(task)" style="float:right">x</button>
@@ -49,6 +49,7 @@ export default {
   watch: {
     category: function (new_, old) {
       this.tasks = []
+      this.isHidedDoneTasks = false;
       this.fetchData()
     },
     newTask: function (new_, old) {

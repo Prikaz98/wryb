@@ -14,5 +14,3 @@ pom.xml.asc
 .cpcache/
 .idea/
 .lsp/
-/resources/public/static/
-/resources/public/index.html
