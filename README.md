@@ -1,10 +1,13 @@
 # Motivation
 
-Test project for learning clojure.
+Test project to learning clojure.
+
+
+<a id="orge694dde"></a>
 
 # Usages
 
-There is no real life usage but might be used for storing some plans if you don't want to share data with some exteranl service.
+There is no real life usage but might be used for storing some plans if you don&rsquo;t want to share data with exteranl service.
 
 Before using override sqlite file path in application.toml :
 
@@ -15,4 +18,12 @@ Run:
 
     lein run
 
-Ui will be allowed by http://localhost:3000
+Ui will be allowed by localhost:3000
+
+
+<a id="orge16457a"></a>
+
+# TODOs
+
+-   [ ] UI for working with categories
+
