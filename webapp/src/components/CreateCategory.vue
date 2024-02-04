@@ -1,6 +1,11 @@
 <template>
   <div>
-  <input v-model="newCategory" type="text" placeholder="new category" class="input i-category" v-on:keyup.enter="createNewCategory()"/>
+  <input
+    v-model="newCategory"
+    type="text"
+    placeholder="new category"
+    class="input i-category"
+    v-on:keyup.enter="createNewCategory()"/>
   </div>
 </template>
 

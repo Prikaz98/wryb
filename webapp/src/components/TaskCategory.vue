@@ -1,10 +1,34 @@
 <template>
-  <div>
-      <div v-for="c in categories" @click="switchcategory(c)" v-bind:class="[c.id == selectedId ? selected : nonselected]">
-       {{c.name}}
-       <!--<button @click="removeCategory(c)" style="float:right;margin-right:5px;">x</button>-->
-      </div>
+<div>
+  <div
+    v-for="c in categories"
+    @click="switchcategory(c)">
+
+    <div v-if="c.id != editedId"
+         v-bind:class="[c.id == selectedId ? selected : nonselected]">
+      {{c.name}}
+    </div>
+
+    <div v-else
+         class="category-editor selected">
+
+      <input
+        type="text"
+        name="category-name"
+        v-model="c.name"
+        v-on:keyup.enter="saveEdited()"
+        class="edited"/>
+
+      <input
+        type="button"
+        value="remove"
+        @click="removeCategory(c)"
+        class="category-remove-button"/>
+
+    </div>
+
   </div>
+</div>
 </template>
 <script>
 import axios from '../wryb-axios';
@@ -16,11 +40,30 @@ export default {
     return {
       selectedId : null,
       selected : 'element selected',
-      nonselected : 'element default'
+      nonselected : 'element default',
+      editedId : false
     }
   },
   methods: {
+    saveEdited: function() {
+      let categoryToStore = this.editedId == null ? null : this.categories.find((c) => c.id == this.editedId)
+
+      if (categoryToStore != null) {
+        axios({
+            method: 'post',
+            url: '/category',
+            data: categoryToStore
+        })
+      }
+
+      this.editedId = null;
+    },
     switchcategory: function(category) {
+      this.editedId = null;
+      if(this.selectedId == category.id) {
+          this.editedId = category.id
+          return;
+      }
       this.$emit('switchcategory', category)
       this.selectedId = category.id
     },
@@ -46,6 +89,23 @@ export default {
   padding: 10px 0px 10px 10px;
   border-radius: 5px;
   width : 100%;
+}
+
+.category-editor {
+  padding: 10px 0px 30px 10px;
+  border-radius: 5px;
+  width : 100%;
+}
+
+.category-remove-button {
+  float:right;
+  margin:5px 5px 5px 5px;
+}
+
+.edited {
+  padding: 5px 5px 5px 5px;
+  border-radius: 5px;
+  width : 80%;
 }
 
 </style>

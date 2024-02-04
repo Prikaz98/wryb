@@ -17,8 +17,9 @@
     (.close stmt)))
 
 (defn- update-category! [c]
-  (let [stmt (.prepareStatement @connection "UPDATE category SET name=?;")]
+  (let [stmt (.prepareStatement @connection "UPDATE category SET name=? where id=?;")]
     (.setString stmt 1 (:name c))
+    (.setString stmt 2 (:id c))
     (.execute stmt)
     (.close stmt)))
 
