@@ -1,17 +1,14 @@
 <template>
-  <div>
-    <button class="b-managment" @click="toggleCategory()">Hide Category</button>
-    <button @click="toggleEdit()">Hide Edit Panel</button>
-  <button v-if="!isHiddedEdit" @click="toggleEditOrientation()" style="float:right" >Change orientation</button>
-    <button @click="toggleCreateCategoryForm()">Hide category creation</button>
+  <div class="work-window">
+    <button @click="toggleCreateCategoryForm()">Category creation</button>
 
     <CreateCategory v-if="!isHiddedCreateCategoryForm" @newcategory="addNewCategory"/>
 
     <TaskCategory v-if="!isHiddedCategory" @switchcategory="selectCategory" class="category" v-bind:categories="categories"/>
 
-    <div v-bind:class="[ !isHiddedCategory ? content : withoutcategory]">
-      <TaskList v-bind:class="[ isHiddedEdit ? fullscreenClass : isVerticalEdit ? taskListSplitVClass : taskListSplitHClass ]" @gotoedit="selectTask" v-bind:category="currentCategory"/>
-      <TaskEdit v-if="!isHiddedEdit" v-bind:class="[ isVerticalEdit ? taskEditSplitRightClass : taskEditSplitBottomClass ]" v-bind:task="editedTask"/>
+    <div v-bind:class="content">
+      <TaskList v-bind:class="taskListSplitVClass" @gotoedit="selectTask" v-bind:category="currentCategory"/>
+      <TaskEdit v-if="!isHiddedEdit" v-bind:class="taskEditSplitRightClass" v-bind:task="editedTask"/>
     </div>
   </div>
 </template>
@@ -32,17 +29,14 @@ export default {
   data(){
     return {
       taskListSplitVClass : 'split left',
-      taskListSplitHClass : 'splitH top',
       taskEditSplitRightClass: 'split right',
-      taskEditSplitBottomClass: 'splitH',
       content : "content",
-      withoutcategory : "withoutcategory",
       fullscreenClass : 'fullscreen',
       editedTask : { title : '', desc : '' },
       categories : [],
       currentCategory : {},
-      isHiddedEdit : true,
-      isVerticalEdit : false,
+      isHiddedEdit : false,
+      isVerticalEdit : true,
       isHiddedCategory : false,
       isHiddedCreateCategoryForm: true
     }
@@ -55,7 +49,6 @@ export default {
       axios.get("/categories")
         .then((resp) => {
           resp.data.forEach((el) => {
-            console.log(el)
             this.categories.push(el)
           })
         })
@@ -71,9 +64,6 @@ export default {
       }
       this.editedTask = task
     },
-    toggleEdit: function() {
-      this.isHiddedEdit = !this.isHiddedEdit
-    },
     toggleCategory: function() {
       this.isHiddedCategory = !this.isHiddedCategory
     },
@@ -81,17 +71,17 @@ export default {
       this.currentCategory = category
     },
     addNewCategory: function(category){
-      console.log(category)
       this.categories.push(category)
-    },
-    toggleEditOrientation : function() {
-      this.isVerticalEdit = !this.isVerticalEdit
     }
   }
 }
 </script>
 
 <style>
+
+.work-window {
+  margin: 15px 5px 5px 5px;
+}
 
 .category {
   margin: 15px 5px 5px 5px;
@@ -102,16 +92,12 @@ export default {
   left: 0px;
 }
 
-.withoutcategory {
-  margin-left: 2%;
-}
-
 .content {
-  margin-left: 13%;
+  margin-left: 12%;
 }
 
 body {
-  font: normal 16px "Trebuchet MS", Helvetica, sans-serif;
+  font: normal 14px "Trebuchet MS", Helvetica, sans-serif;
   margin: 0;
 }
 
@@ -124,7 +110,7 @@ body {
 }
 
 .split {
-  width: 43%;
+  width: 50%;
   height: 100%;
   position: fixed;
   z-index: 1;
@@ -132,29 +118,14 @@ body {
   margin-top : 15px;
 }
 
-
-.splitH {
-  width: 95%;
-  height: 50%;
-  z-index: 1;
-  overflow-x: hidden;
-  margin-top : 15px;
-}
-
-.bottom {
-  top: 50%;
-}
-
-.top {
-  height: 350px;
-}
-
 .right {
+  width: 36%;
   right: 0px;
+  margin-right: 10px;
 }
 
-.b-managment {
-  margin:5px;
+.selected {
+ background-color: aliceblue;
 }
 
 </style>

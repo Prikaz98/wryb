@@ -2,7 +2,7 @@
   <div>
       <div v-for="c in categories" @click="switchcategory(c)" v-bind:class="[c.id == selectedId ? selected : nonselected]">
        {{c.name}}
-       <button @click="removeCategory(c)" style="float:right;margin-right:5px;">x</button>
+       <!--<button @click="removeCategory(c)" style="float:right;margin-right:5px;">x</button>-->
       </div>
   </div>
 </template>
@@ -46,14 +46,6 @@ export default {
   padding: 10px 0px 10px 10px;
   border-radius: 5px;
   width : 100%;
-}
-
-.selected {
- background-color: aliceblue;
-}
-
-.default {
-  background-color : #f0f0f5;
 }
 
 </style>

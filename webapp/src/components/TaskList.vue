@@ -1,12 +1,23 @@
 <template>
   <div>
     <div>
-      <input v-bind:class="[inputIsEmpty ? emptyInputTitle : fillInputTitle]" v-model="newTask" type="text" placeholder="task" v-on:keyup.enter="submitTask()"/>
+      <input
+        type="text"
+        v-bind:class="[inputIsEmpty ? emptyInputTitle : fillInputTitle]"
+        v-model="newTask"
+        v-bind:placeholder="placeholderTaskTitle"
+        v-on:keyup.enter="submitTask()"
+        />
     </div>
 
-    <div class="listTask new">
+    <div class="listTask">
       <label>Overdue:</label><br>
-        <div class="task-row" v-for="task in tasks" v-if="!task.isdone" @click="gotoedit(task)">
+        <div
+          v-for="task in tasks"
+          v-if="!task.isdone"
+          @click="gotoedit(task)"
+          v-bind:class="[task.id == selectedId ? selected : nonselected]"
+          >
           <input v-model="task.isdone" type="checkbox"/>
           {{task.title}}
           <button @click="toDelete(task)" style="float:right">x</button>
@@ -18,7 +29,7 @@
         <button style="float:right" @click="toggleHideDoneTasks">Hide tasks</button>
         <label >Done:</label><br>
       </div>
-      <div class="task-row" v-for="task in tasks" v-if="task.isdone && !isHidedDoneTasks" @click="gotoedit(task)">
+      <div v-for="task in tasks" v-if="task.isdone && !isHidedDoneTasks" @click="gotoedit(task)" v-bind:class="[task.id == selectedId ? selected : nonselected]">
         <input v-model="task.isdone" type="checkbox"/>
         {{task.title}}
         <button @click="toDelete(task)" style="float:right">x</button>
@@ -35,9 +46,13 @@ export default {
   props: ['category'],
   data () {
     return {
+      placeholderTaskTitle : "+ Add task",
       emptyInputTitle : 'empty input title',
       fillInputTitle : 'input title',
       isHidedDoneTasks: false,
+      selectedId: null,
+      selected : 'task-row selected',
+      nonselected : 'task-row default',
       inputIsEmpty: true,
       newTask : '',
       tasks: []
@@ -48,6 +63,7 @@ export default {
   },
   watch: {
     category: function (new_, old) {
+      this.placeholderTaskTitle = "+ Add task to \"" + new_.name + "\"";
       this.tasks = []
       this.isHidedDoneTasks = false;
       this.$emit('gotoedit', {})
@@ -67,6 +83,7 @@ export default {
   },
   methods: {
     fetchData : function() {
+      this.selectedId = null
       axios.get("/tasks?category=" + this.category.name)
         .then((resp) => {
           resp.data.forEach((el) => {
@@ -103,6 +120,7 @@ export default {
     },
     gotoedit : function(task) {
       this.$emit('gotoedit', task)
+      this.selectedId = task.id
     }
   }
 }
@@ -110,12 +128,11 @@ export default {
 
 <style>
 
-.new {
+.selected {
  background-color: aliceblue;
 }
 
 .done {
- background-color: lightsteelblue;
  color: grey;
 }
 
@@ -150,6 +167,7 @@ export default {
 .listTask .task-row {
   padding : 2px 2px;
   border-bottom: 1px solid;
+  border-width: 1px;
 }
 
 .task-desc {
