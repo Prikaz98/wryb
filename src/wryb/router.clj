@@ -3,7 +3,7 @@
    [clojure.data.json :as json]
    [clojure.tools.logging :refer [info]]
    [ring.util.request :refer [body-string]]
-   [ring.util.response :refer [content-type resource-response response header]]
+   [ring.util.response :refer [content-type resource-response response]]
    [wryb.domain.category :as category]
    [wryb.domain.sqlite.category-repo :as c-repo]
    [wryb.domain.sqlite.task-repo :as t-repo]
@@ -21,7 +21,7 @@
 (defn- logging-response [response]
   (let [response-string (str response)
         logging-msg     (if (< 200 (count response-string)) (str (apply str (take 150 response-string)) "..." (apply str (take-last 20 response-string)))
-                        response-string)]
+                            response-string)]
     (info (str "RESP:" logging-msg))
     response))
 
@@ -73,7 +73,7 @@
   ([category] (default-handle #(task-list category))))
 
 (defn handle-get-categories []
-  (default-handle c-repo/get-all))
+  (default-handle #(sort-by :createtime (c-repo/get-all))))
 
 (defn handle-category-save! [request]
   (default-handle request (fn [json-body] (c-repo/save! (category/from-json json-body)))))

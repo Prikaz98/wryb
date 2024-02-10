@@ -1,5 +1,6 @@
 (ns wryb.domain.sqlite.category-repo
   (:require
+   [wryb.date.instant-utils :refer [instant-to-timestamp timestamp-to-instant]]
    [wryb.domain.category :refer [->Category]]
    [wryb.domain.sqlite.connectionmanager :refer [connection]])
   (:import
@@ -10,9 +11,10 @@
 
 (defn- insert-category! [c]
   (let [stmt (.prepareStatement @connection
-                                "INSERT INTO category (id, name) VALUES (?,?);")]
+                                "INSERT INTO category (id, name, create_time) VALUES (?,?,?);")]
     (.setString stmt 1 (:id c))
     (.setString stmt 2 (:name c))
+    (.setTimestamp stmt 3 (instant-to-timestamp (:createtime c)))
     (.execute stmt)
     (.close stmt)))
 
@@ -38,8 +40,9 @@
   [rs]
   (when (.next rs)
     (let [id (.getString rs "id")
-          name (.getString rs "name")]
-      (->Category id name))))
+          name (.getString rs "name")
+          create-time (timestamp-to-instant (.getTimestamp rs "create_time"))]
+      (->Category id name create-time))))
 
 (defn remove! [id]
   (-> (create-stmt)
