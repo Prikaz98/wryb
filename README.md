@@ -26,4 +26,5 @@ Ui will be allowed by localhost:3000
 # TODOs
 
 -   [ ] UI for working with categories
+-   [ ] after changing category name tasks couldn't be loaded
 
