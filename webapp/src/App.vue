@@ -124,6 +124,7 @@ input {
 
 textarea {
   font: normal 14px "Fira Sans", Helvetica, sans-serif;
+  border: none;
 }
 
 .fullscreen {
