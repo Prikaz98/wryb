@@ -16,8 +16,3 @@ Run:
 lein run
 #+end_src
 Ui will be allowed by localhost:3000
-
-* TODOs
-- [ ] UI for working with categories
-  +it might be new form which appiers by double click like what it is with htmlx+
-  add category do via some button form like editing
