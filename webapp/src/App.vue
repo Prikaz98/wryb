@@ -114,8 +114,16 @@ export default {
 }
 
 body {
-  font: normal 14px "Trebuchet MS", Helvetica, sans-serif;
+  font: normal 14px "Fira Sans", Helvetica, sans-serif;
   margin: 0;
+}
+
+input {
+  font: normal 14px "Fira Sans", Helvetica, sans-serif;
+}
+
+textarea {
+  font: normal 14px "Fira Sans", Helvetica, sans-serif;
 }
 
 .fullscreen {
@@ -146,7 +154,7 @@ body {
 }
 
 .green-button {
-  float:right;
+  margin-top: 5px;
   appearance: none;
   border: 1px solid rgba(27, 31, 35, .15);
   border-radius: 6px;
@@ -158,7 +166,7 @@ body {
   font-size: 14px;
   font-weight: 600;
   line-height: 5px;
-  padding: 6px 16px;
+  padding: 10px 20px;
   position: relative;
   text-align: center;
   text-decoration: none;
