@@ -3,7 +3,7 @@
 Test project to learning clojure.
 
 
-<a id="orge694dde"></a>
+<a id="org74a8d70"></a>
 
 # Usages
 
@@ -19,12 +19,4 @@ Run:
     lein run
 
 Ui will be allowed by localhost:3000
-
-
-<a id="orge16457a"></a>
-
-# TODOs
-
--   [ ] UI for working with categories
--   [ ] after changing category name tasks couldn't be loaded
 
