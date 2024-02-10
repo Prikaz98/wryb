@@ -1,14 +1,30 @@
 <template>
   <div class="work-window">
-    <button @click="toggleCreateCategoryForm()">Category creation</button>
 
-    <CreateCategory v-if="!isHiddedCreateCategoryForm" @newcategory="addNewCategory"/>
+    <!--<button @click="toggleCreateCategoryForm()">Category creation</button>-->
 
-    <TaskCategory v-if="!isHiddedCategory" @switchcategory="selectCategory" class="category" v-bind:categories="categories"/>
+    <!--<CreateCategory
+      v-if="!isHiddedCreateCategoryForm"
+      @newcategory="addNewCategory"/>-->
+
+    <TaskCategory
+      v-if="!isHiddedCategory"
+      @switchcategory="selectCategory"
+      class="category"
+      v-bind:categories="categories"/>
 
     <div v-bind:class="content">
-      <TaskList v-bind:class="taskListSplitVClass" @gotoedit="selectTask" v-bind:category="currentCategory"/>
-      <TaskEdit v-if="!isHiddedEdit" v-bind:class="taskEditSplitRightClass" v-bind:task="editedTask"/>
+
+      <TaskList
+        v-bind:class="taskListSplitVClass"
+        @gotoedit="selectTask"
+        v-bind:category="currentCategory"/>
+
+      <TaskEdit
+        v-if="!isHiddedEdit"
+        v-bind:class="taskEditSplitRightClass"
+        v-bind:task="editedTask"/>
+
     </div>
   </div>
 </template>

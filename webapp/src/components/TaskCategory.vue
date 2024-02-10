@@ -16,7 +16,7 @@
         type="text"
         name="category-name"
         v-model="c.name"
-        v-on:keyup.enter="saveEdited()"
+        v-on:keyup.enter="saveEdited(c)"
         class="edited"/>
 
       <input
@@ -28,6 +28,12 @@
     </div>
 
   </div>
+
+  <input
+    type="button"
+    @click="addNewCategory()"
+    value="add"/>
+
 </div>
 </template>
 <script>
@@ -41,18 +47,21 @@ export default {
       selectedId : null,
       selected : 'element selected',
       nonselected : 'element default',
-      editedId : false
+      editedId : null
     }
   },
   methods: {
-    saveEdited: function() {
-      let categoryToStore = this.editedId == null ? null : this.categories.find((c) => c.id == this.editedId)
-
+    saveEdited: function(categoryToStore) {
       if (categoryToStore != null) {
         axios({
             method: 'post',
             url: '/category',
             data: categoryToStore
+        }).then((resp) => {
+          if(resp.data.error != null){
+            alert(resp.data.error)
+            return;
+          }
         })
       }
 
@@ -79,6 +88,9 @@ export default {
         }
         this.categories = this.categories.filter((el) => el.id != resp.data.id)
       })
+    },
+    addNewCategory: function() {
+       this.categories.push({})
     }
   }
 }
