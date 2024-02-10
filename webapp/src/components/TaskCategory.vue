@@ -2,7 +2,8 @@
 <div>
   <div
     v-for="c in categories"
-    @click="switchcategory(c)">
+    @click="switchcategory(c)"
+    @dblclick="editingCatergory(c)">
 
     <div v-if="c.id != editedId"
          v-bind:class="[c.id == selectedId ? selected : nonselected]">
@@ -19,11 +20,12 @@
         v-on:keyup.enter="saveEdited(c)"
         class="edited"/>
 
-      <input
-        type="button"
-        value="remove"
+      <button
+        v-if="c.id == editedId"
         @click="removeCategory(c)"
-        class="category-remove-button"/>
+        class="category-remove-button">
+        Remove
+      </button>
 
     </div>
 
@@ -32,7 +34,8 @@
   <input
     type="button"
     @click="addNewCategory()"
-    value="add"/>
+    value="+"
+    class="green-button"/>
 
 </div>
 </template>
@@ -62,19 +65,19 @@ export default {
             alert(resp.data.error)
             return;
           }
+          this.$emit('categoryadded', resp.data)
         })
       }
 
       this.editedId = null;
     },
     switchcategory: function(category) {
-      this.editedId = null;
-      if(this.selectedId == category.id) {
-          this.editedId = category.id
-          return;
-      }
+      this.editedId = null
       this.$emit('switchcategory', category)
       this.selectedId = category.id
+    },
+    editingCatergory: function(category) {
+      this.editedId = category.id
     },
     removeCategory: function(category) {
       axios({
@@ -86,7 +89,7 @@ export default {
           alert(resp.data.error)
           return;
         }
-        this.categories = this.categories.filter((el) => el.id != resp.data.id)
+        this.$emit('categoryremoved', category)
       })
     },
     addNewCategory: function() {
@@ -111,7 +114,12 @@ export default {
 
 .category-remove-button {
   float:right;
-  margin:5px 5px 5px 5px;
+  margin:5px 5px 5px 10px;
+}
+
+.category-add-button {
+  float:right;
+  margin: 5px 0px 0px 0px;
 }
 
 .edited {

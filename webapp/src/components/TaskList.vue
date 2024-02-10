@@ -84,7 +84,7 @@ export default {
   methods: {
     fetchData : function() {
       this.selectedId = null
-      axios.get("/tasks?category=" + this.category.name)
+      axios.get("/tasks?category=" + this.category.id)
         .then((resp) => {
           resp.data.forEach((el) => {
             this.tasks.push(el)
@@ -111,7 +111,7 @@ export default {
         data: {
           title: title,
           isdone: false,
-          category: this.category.name
+          category: this.category.id
         }
       }).then((resp) => {
         this.tasks.unshift(resp.data)

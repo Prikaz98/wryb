@@ -3,7 +3,7 @@
    [clojure.data.json :as json]
    [clojure.tools.logging :refer [info]]
    [ring.util.request :refer [body-string]]
-   [ring.util.response :refer [content-type resource-response response]]
+   [ring.util.response :refer [content-type resource-response response header]]
    [wryb.domain.category :as category]
    [wryb.domain.sqlite.category-repo :as c-repo]
    [wryb.domain.sqlite.task-repo :as t-repo]

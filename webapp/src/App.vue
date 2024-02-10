@@ -1,15 +1,11 @@
 <template>
   <div class="work-window">
 
-    <!--<button @click="toggleCreateCategoryForm()">Category creation</button>-->
-
-    <!--<CreateCategory
-      v-if="!isHiddedCreateCategoryForm"
-      @newcategory="addNewCategory"/>-->
-
     <TaskCategory
       v-if="!isHiddedCategory"
-      @switchcategory="selectCategory"
+      @switchcategory="categorySelected"
+      @categoryadded="categoryAdded"
+      @categoryremoved="categoryRemoved"
       class="category"
       v-bind:categories="categories"/>
 
@@ -62,6 +58,7 @@ export default {
   },
   methods : {
     fetchData: function(){
+      this.categories = []
       axios.get("/categories")
         .then((resp) => {
           resp.data.forEach((el) => {
@@ -83,11 +80,15 @@ export default {
     toggleCategory: function() {
       this.isHiddedCategory = !this.isHiddedCategory
     },
-    selectCategory : function(category) {
+    categorySelected : function(category) {
       this.currentCategory = category
     },
-    addNewCategory: function(category){
-      this.categories.push(category)
+    categoryAdded: function(category){
+      this.fetchData()
+      //this.categories.push(category)
+    },
+    categoryRemoved: function(category) {
+      this.categories = this.categories.filter((el) => el.id != category.id)
     }
   }
 }
@@ -142,6 +143,80 @@ body {
 
 .selected {
  background-color: aliceblue;
+}
+
+.green-button {
+  float:right;
+  appearance: none;
+  border: 1px solid rgba(27, 31, 35, .15);
+  border-radius: 6px;
+  box-shadow: rgba(27, 31, 35, .1) 0 1px 0;
+  box-sizing: border-box;
+  color: grey;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 5px;
+  padding: 6px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.green-button:focus:not(:focus-visible):not(.focus-visible) {
+  color: white;
+  box-shadow: none;
+  outline: none;
+}
+
+.green-button:hover {
+  color: white;
+  background-color: #2c974b;
+}
+
+.green-button:focus {
+  box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;
+  outline: none;
+}
+
+.green-button:disabled {
+  background-color: #94d3a2;
+  border-color: rgba(27, 31, 35, .1);
+  color: rgba(255, 255, 255, .8);
+  cursor: default;
+}
+
+.green-button:active {
+  background-color: #298e46;
+  box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;
+}
+
+button {
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 2px;
+  border-width: 0;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 5px;
+  list-style: none;
+  margin: 0;
+  padding: 7px 7px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
 
 </style>
