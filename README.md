@@ -3,6 +3,7 @@
 Test project to learn clojure.
 
 # Usages
+
 Simple todo list application.
 
 Before using override sqlite file path in application.toml :
@@ -21,4 +22,3 @@ Ui will be allowed by localhost:3000
 ![img](./wryb-screen.png)
 
 ![img](./wryb-screen-2.png)
-
