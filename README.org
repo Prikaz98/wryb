@@ -1,9 +1,10 @@
 #+title: wryb
 
 * Motivation
-Test project to learning clojure.
+Test project to learn clojure.
+
 * Usages
-There is no real life usage but might be used for storing some plans if you don't want to share data with exteranl service.
+Simple todo list application.
 
 Before using override sqlite file path in application.toml :
 #+begin_src toml
@@ -16,3 +17,8 @@ Run:
 lein run
 #+end_src
 Ui will be allowed by localhost:3000
+
+* Screenshots
+[[./wryb-screen.png]]
+
+[[./wryb-screen-2.png]]
