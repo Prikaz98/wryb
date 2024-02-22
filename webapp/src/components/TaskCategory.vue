@@ -72,7 +72,9 @@ export default {
       this.editedId = null;
     },
     switchcategory: function(category) {
-      this.editedId = null
+      if (this.editedId != category.id) {
+        this.editedId = null
+      }
       this.$emit('switchcategory', category)
       this.selectedId = category.id
     },

@@ -69,11 +69,11 @@
            (recur (conj acc task) rs)))) '() rs))
 
 (defn get-all []
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY create_time DESC;"))]
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY create_time ASC;"))]
     (resultset-to-list rs)))
 
 (defn get-by-category [category]
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "' ORDER BY create_time DESC;"))]
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "' ORDER BY create_time ASC;"))]
     (resultset-to-list rs)))
 
 (defn remove! [id]
