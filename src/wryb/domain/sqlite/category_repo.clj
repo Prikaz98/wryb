@@ -1,8 +1,10 @@
 (ns wryb.domain.sqlite.category-repo
   (:require
-   [wryb.date.instant-utils :refer [instant-to-timestamp timestamp-to-instant]]
+   [wryb.date.instant-utils :refer [timestamp-to-instant]]
    [wryb.domain.category :refer [->Category]]
-   [wryb.domain.sqlite.connectionmanager :refer [connection]])
+   [wryb.domain.sqlite.connectionmanager :refer [connection]]
+   [wryb.domain.sqlite.util :refer [fill-insert-stmt! resultset-to-list
+                                    to-insert-query]])
   (:import
    (java.util UUID)))
 
@@ -11,10 +13,8 @@
 
 (defn- insert-category! [c]
   (let [stmt (.prepareStatement @connection
-                                "INSERT INTO category (id, name, create_time) VALUES (?,?,?);")]
-    (.setString stmt 1 (:id c))
-    (.setString stmt 2 (:name c))
-    (.setTimestamp stmt 3 (instant-to-timestamp (:createtime c)))
+                                (to-insert-query "category" c))]
+    (fill-insert-stmt! stmt c)
     (.execute stmt)
     (.close stmt)))
 
@@ -27,8 +27,7 @@
 
 (defn save! [c]
   (if (nil? (:id c))
-    (let [id (str (UUID/randomUUID))
-          new-categ (assoc c :id id)]
+    (let [new-categ (assoc c :id (str (UUID/randomUUID)))]
       (insert-category! new-categ)
       new-categ)
     (do
@@ -41,7 +40,7 @@
   (when (.next rs)
     (let [id (.getString rs "id")
           name (.getString rs "name")
-          create-time (timestamp-to-instant (.getTimestamp rs "create_time"))]
+          create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
       (->Category id name create-time))))
 
 (defn remove! [id]
@@ -49,12 +48,7 @@
       (.executeUpdate (str "DELETE FROM category WHERE id='" id "';"))))
 
 (defn get-all []
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM category;"))]
-    ((fn [acc rs]
-       (let [c (category-from-result-set rs)]
-         (if (nil? c) acc
-             (recur (conj acc c) rs)))) '() rs)))
+  (resultset-to-list (.executeQuery (create-stmt) (str "SELECT * FROM category;")) category-from-result-set))
 
 (defn get-by-id [id]
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM category WHERE id = '" id "';"))]
-    (category-from-result-set rs)))
+  (category-from-result-set (.executeQuery (create-stmt) (str "SELECT * FROM category WHERE id = '" id "';"))))

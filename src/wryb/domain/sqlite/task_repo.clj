@@ -1,21 +1,19 @@
 (ns wryb.domain.sqlite.task-repo
   (:require
    [clojure.tools.logging :refer [info]]
-   [wryb.date.instant-utils :refer [instant-to-timestamp timestamp-to-instant]]
+   [wryb.date.instant-utils :refer [timestamp-to-instant]]
    [wryb.domain.sqlite.connectionmanager :refer [connection]]
+   [wryb.domain.sqlite.util :refer [fill-insert-stmt! resultset-to-list
+                                    to-insert-query]]
    [wryb.domain.task :refer [->Task]])
   (:import
    (java.util UUID)))
 
+
 (defn- insert-task! [t]
   (let [stmt (.prepareStatement @connection
-                                "INSERT INTO task (id,title,desc,isdone,category,create_time) VALUES (?,?,?,?,?,?);")]
-    (.setString stmt 1 (:id t))
-    (.setString stmt 2 (:title t))
-    (.setString stmt 3 (:desc t))
-    (.setBoolean stmt 4 (:isdone t))
-    (.setString stmt 5 (:category t))
-    (.setTimestamp stmt 6 (instant-to-timestamp (:createtime t)))
+                                (to-insert-query "task" t))]
+    (fill-insert-stmt! stmt t)
     (.execute stmt)
     (.close stmt)))
 
@@ -44,7 +42,7 @@
           desc (.getString rs "desc")
           isdone (.getBoolean rs "isdone")
           category (.getString rs "category")
-          create-time (timestamp-to-instant (.getTimestamp rs "create_time"))]
+          create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
       (->Task id title desc isdone category create-time))))
 
 (defn save! [task]
@@ -62,19 +60,13 @@
   (-> (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE id='" id "';"))
       (task-from-result-set)))
 
-(defn- resultset-to-list [rs]
-  ((fn [acc rs]
-     (let [task (task-from-result-set rs)]
-       (if (nil? task) acc
-           (recur (conj acc task) rs)))) '() rs))
-
 (defn get-all []
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY create_time ASC;"))]
-    (resultset-to-list rs)))
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task ORDER BY createtime ASC;"))]
+    (resultset-to-list rs task-from-result-set)))
 
 (defn get-by-category [category]
-  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "' ORDER BY create_time ASC;"))]
-    (resultset-to-list rs)))
+  (let [rs (.executeQuery (create-stmt) (str "SELECT * FROM task WHERE category='" category "' ORDER BY createtime ASC;"))]
+    (resultset-to-list rs task-from-result-set)))
 
 (defn remove! [id]
   (-> (create-stmt)

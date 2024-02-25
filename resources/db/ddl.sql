@@ -3,16 +3,16 @@ CREATE TABLE IF NOT EXISTS task (
     title varchar(1000),
     "desc" text,
     isdone boolean,
-    create_time timestamp,
+    createtime timestamp,
     category varchar(255) default 'inbox'
 );
 
 CREATE TABLE IF NOT EXISTS category (
     id varchar(255) primary key,
     name VARCHAR(255),
-    create_time timestamp
+    createtime timestamp
 );
 
-INSERT INTO category(id, name, create_time)
+INSERT INTO category(id, name, createtime)
 SELECT '2c279911-80f3-4446-9fb6-d188ba34f195','inbox', datetime()
 WHERE not exists (select * from category where name = 'inbox');
