@@ -17,12 +17,12 @@
     (let [task (repo/save! (->Task nil "cook" nil false "inbox" Instant/EPOCH))
           updated (assoc task :title "recover" :isdone true)]
       (repo/save! updated)
-      (is (= updated (repo/get-by-id (:id updated)))))))
+      (is (= (list updated) (repo/get-by-id (:id updated)))))))
 
 (deftest get-test
   (testing "Access to data test"
     (let [task (->Task nil "cook" nil false "inbox" Instant/EPOCH)
           new-task (repo/save! task)
           id (:id new-task)]
-      (and (is (= (repo/get-by-id id) new-task))
+      (and (is (= (repo/get-by-id id) (list new-task)))
            (is (not-empty (repo/get-all)))))))
