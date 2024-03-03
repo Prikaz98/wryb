@@ -2,7 +2,7 @@
   (:require
    [clojure.tools.logging :refer [info]]
    [wryb.date.instant-utils :refer [timestamp-to-instant]]
-   [wryb.domain.sqlite.util :refer [insert! update! select-by delete-by]]
+   [wryb.domain.sqlite.repository :refer [insert! update! select-by delete-by]]
    [wryb.domain.task :refer [->Task]])
   (:import
    (java.util UUID)))
@@ -10,12 +10,12 @@
 
 (defn row-decode [rs]
   (let [id (.getString rs "id")
-          title (.getString rs "title")
-          desc (.getString rs "desc")
-          isdone (.getBoolean rs "isdone")
-          category (.getString rs "category")
-          create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
-      (->Task id title desc isdone category create-time)))
+        title (.getString rs "title")
+        desc (.getString rs "desc")
+        isdone (.getBoolean rs "isdone")
+        category (.getString rs "category")
+        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
+    (->Task id title desc isdone category create-time)))
 
 (def task-context {:primary-key #{:id}
                    :table-name "task"

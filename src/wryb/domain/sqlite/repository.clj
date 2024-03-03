@@ -1,4 +1,4 @@
-(ns wryb.domain.sqlite.util
+(ns wryb.domain.sqlite.repository
   (:require
    [clojure.string :as string]
    [wryb.date.instant-utils :refer [format-instant instant-to-timestamp]]

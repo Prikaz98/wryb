@@ -2,7 +2,7 @@
   (:require
    [wryb.date.instant-utils :refer [timestamp-to-instant]]
    [wryb.domain.category :refer [->Category]]
-   [wryb.domain.sqlite.util :refer [insert! select-by update! delete-by]])
+   [wryb.domain.sqlite.repository :refer [insert! select-by update! delete-by]])
   (:import
    (java.util UUID)))
 
