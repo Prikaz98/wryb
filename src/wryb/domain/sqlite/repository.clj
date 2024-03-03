@@ -5,19 +5,27 @@
    [wryb.domain.sqlite.connectionmanager :refer [connection]]
    [clojure.tools.logging :as log]))
 
-(defn- extract-clean-fields-name [obj]
-  (map #(str (string/replace % #":" "")) (keys obj)))
+(defn- normilize-keys [keys]
+  (map #(str (string/replace % #":" "")) keys))
 
 (defn- concat-with-delimiter [delim coll]
   (if (or (nil? coll) (empty? coll)) nil
     (reduce #(str %1 delim %2) coll)))
 
+(defn- as-sql-params [keys]
+  (->> keys
+       (normilize-keys)
+       (map #(str % "=?"))
+       (concat-with-delimiter ", ")))
+
 (defn- to-insert-query
   "Build insert query from the data"
   [table-name obj]
-  (let [field-names (extract-clean-fields-name obj)
+  (let [field-names (normilize-keys (keys obj))
         field-as-params (concat-with-delimiter ", " field-names)
-        values (concat-with-delimiter ", " (map (fn [_] "?") field-names))]
+        values (->> field-names
+                    (map (fn [_] "?"))
+                    (concat-with-delimiter ", "))]
     (str "INSERT INTO " table-name "(" field-as-params ") VALUES (" values ");")))
 
 (defn- zip-with-index
@@ -44,12 +52,6 @@
      acc
      (recur mapf rs (conj acc (mapf rs))))))
 
-(defn- as-sql-params [keys]
-  (->> keys
-       (map #(str % "=?"))
-       (map #(str (string/replace % #":" "")))
-       (concat-with-delimiter ", ")))
-
 (defn- to-update-query [table-name obj identity-keys]
   (let [set-field-names (->> (keys obj)
                              (filter #(not (contains? identity-keys %)))
@@ -72,14 +74,14 @@
 (defn- create-stmt []
   (.createStatement @connection))
 
-(defn insert! [entity ctx]
+(defn insert! [ctx entity]
   (let [stmt (.prepareStatement @connection
                                 (to-insert-query (:table-name ctx) entity))]
     (fill-insert-stmt! stmt entity)
     (.execute stmt)
     (.close stmt)))
 
-(defn update! [entity ctx]
+(defn update! [ctx entity]
   (let [pk (:primary-key ctx)
         stmt (.prepareStatement @connection
                                 (to-update-query (:table-name ctx) entity pk))]
@@ -87,31 +89,31 @@
     (.execute stmt)
     (.close stmt)))
 
-(defn- to-sql-query-param [v]
+(defn- to-query-condition-value [v]
   (condp = (type v)
     java.lang.Boolean (str v)
     java.time.Instant (str "'" (format-instant v) "'")
     (str "'" v "'")))
 
-(defn- build-where [condition]
+(defn- build-sql-condition [condition]
   (let [[key op value] condition]
-    (str key op (to-sql-query-param value))))
+    (str key op (to-query-condition-value value))))
 
 (defn select-by [ctx & conditions]
   (let [where-params (->> conditions
-                          (map build-where)
+                          (map build-sql-condition)
                           (concat-with-delimiter " "))
         query (str "SELECT * FROM " (:table-name ctx) (if where-params (str " WHERE " where-params) "") ";")]
-    (log/info query)
+    (log/debug query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 
-(defn delete-by [ctx & params]
-  (if (or (nil? params) (empty? params))
+(defn delete-by [ctx & conditions]
+  (if (or (nil? conditions) (empty? conditions))
     nil
-    (let [where-params (->> params
-                            (map build-where)
+    (let [where-params (->> conditions
+                            (map build-sql-condition)
                             (concat-with-delimiter " "))
           query (str "DELETE FROM " (:table-name ctx) (str " WHERE " where-params) ";")]
-      (log/info query)
+      (log/debug query)
       (.executeUpdate (create-stmt) query))))

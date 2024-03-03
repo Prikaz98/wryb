@@ -17,12 +17,12 @@
                        :row-decode row-decode})
 
 (defn- update-category! [c]
-  (update! c category-context))
+  (update! category-context c))
 
 (defn save! [c]
   (if (nil? (:id c))
     (let [new-categ (assoc c :id (str (UUID/randomUUID)))]
-      (insert! new-categ category-context)
+      (insert! category-context new-categ)
       new-categ)
     (do
       (update-category! c)

@@ -26,10 +26,10 @@
   (if (nil? (:id task))
     (let [id (str (UUID/randomUUID))
           new-task (assoc task :id id)]
-      (insert! new-task task-context)
+      (insert! task-context new-task)
       new-task)
     (do
-      (update! task task-context)
+      (update! task-context task)
       task)))
 
 (defn get-by-id [id]
