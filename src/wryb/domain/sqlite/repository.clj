@@ -50,7 +50,7 @@
        (map #(str (string/replace % #":" "")))
        (concat-with-delimiter ", ")))
 
-(defn to-update-query [table-name obj identity-keys]
+(defn- to-update-query [table-name obj identity-keys]
   (let [set-field-names (->> (keys obj)
                              (filter #(not (contains? identity-keys %)))
                              (as-sql-params))
