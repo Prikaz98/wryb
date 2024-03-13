@@ -39,7 +39,7 @@
   (select-by task-context))
 
 (defn get-by-category [category]
-  (select-by task-context (list "category" "=" category)))
+  (select-by task-context (when category (list "category" "=" category))))
 
 (defn remove! [id]
   (delete-by task-context (list "id" "=" id)))

@@ -61,6 +61,7 @@ export default {
       this.categories = []
       axios.get("/categories")
         .then((resp) => {
+          this.categories.push({ id: "all", name: "all", isAll: true })
           resp.data.forEach((el) => {
             this.categories.push(el)
           })

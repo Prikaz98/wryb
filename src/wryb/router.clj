@@ -81,7 +81,7 @@
 (defn- remove-category
   "if category doesn't have task remove else ignore"
   [id] (let [category (c-repo/get-by-id id)
-             tasks    (t-repo/get-by-category (:id category))]
+             tasks    (t-repo/get-by-category id)]
          (if (= 0 (count tasks)) (do (c-repo/remove! id) {:id id})
              {:error (str "Couldn't remove category with " (:name category) ". Cause there're " (count tasks) " tasks")})))
 

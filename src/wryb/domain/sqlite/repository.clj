@@ -1,9 +1,9 @@
 (ns wryb.domain.sqlite.repository
   (:require
    [clojure.string :as string]
+   [clojure.tools.logging :as log]
    [wryb.date.instant-utils :refer [format-instant instant-to-timestamp]]
-   [wryb.domain.sqlite.connectionmanager :refer [connection]]
-   [clojure.tools.logging :as log]))
+   [wryb.domain.sqlite.connectionmanager :refer [connection]]))
 
 (defn- normilize-keys [keys]
   (map #(str (string/replace % #":" "")) keys))
@@ -100,11 +100,13 @@
     (str key op (to-query-condition-value value))))
 
 (defn select-by [ctx & conditions]
-  (let [where-params (->> conditions
-                          (map build-sql-condition)
-                          (concat-with-delimiter " "))
+  (log/info conditions)
+  (let [where-params (when (every? #(not (nil? %)) conditions)
+                       (->> conditions
+                            (map build-sql-condition)
+                            (concat-with-delimiter " ")))
         query (str "SELECT * FROM " (:table-name ctx) (if where-params (str " WHERE " where-params) "") ";")]
-    (log/debug query)
+    (log/info query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 

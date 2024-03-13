@@ -26,8 +26,8 @@
 
     <div class="listTask done">
       <div style="margin:2px 0px 5px 0px">
-        <button style="float:right" @click="toggleHideDoneTasks">Hide tasks</button>
-        <label >Done:</label><br>
+        <button style="float:right" @click="toggleHideDoneTasks">Show done task</button>
+        <label>Done:</label><br>
       </div>
       <div v-for="task in tasks" v-if="task.isdone && !isHidedDoneTasks" @click="gotoedit(task)" v-bind:class="[task.id == selectedId ? selected : nonselected]">
         <input v-model="task.isdone" type="checkbox"/>
@@ -49,7 +49,7 @@ export default {
       placeholderTaskTitle : "+ Add task",
       emptyInputTitle : 'empty input title',
       fillInputTitle : 'input title',
-      isHidedDoneTasks: false,
+      isHidedDoneTasks: true,
       selectedId: null,
       selected : 'task-row selected',
       nonselected : 'task-row default',
@@ -65,7 +65,7 @@ export default {
     category: function (new_, old) {
       this.placeholderTaskTitle = "+ Add task to \"" + new_.name + "\"";
       this.tasks = []
-      this.isHidedDoneTasks = false;
+      this.isHidedDoneTasks = true;
       this.$emit('gotoedit', {})
       this.fetchData()
     },
@@ -84,7 +84,11 @@ export default {
   methods: {
     fetchData : function() {
       this.selectedId = null
-      axios.get("/tasks?category=" + this.category.id)
+      let taskByCategoryUrl = "/tasks?category=" + this.category.id
+      if (this.category.isAll) {
+         taskByCategoryUrl = "/tasks"
+      }
+      axios.get(taskByCategoryUrl)
         .then((resp) => {
           resp.data.forEach((el) => {
             this.tasks.push(el)
