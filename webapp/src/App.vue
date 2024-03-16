@@ -19,7 +19,8 @@
       <TaskEdit
         v-if="!isHiddedEdit"
         v-bind:class="taskEditSplitRightClass"
-        v-bind:task="editedTask"/>
+        v-bind:task="editedTask"
+        v-bind:categories="categories"/>
 
     </div>
   </div>
