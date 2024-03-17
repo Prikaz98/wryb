@@ -15,8 +15,30 @@
       v-model="task.desc"
       class="desc input"/>
 
-    {{task.createtime == null ? "" : new Date(task.createtime).toLocaleString()}}
+    <table>
+      <tr>
+        <td>Create time:</td>
+        <td>{{task.createtime == null ? "" : new Date(task.createtime).toLocaleString()}}</td>
+      </tr>
+      <tr>
+        <td>Current category:</td>
+        <td>
+          <select
+            style="float:right"
+            v-if="task.id != null"
+            v-on:change="categoryChanged"
+            v-model="selected">
 
+            <option
+              v-for="c in categories"
+              v-if="!c.isAll">
+              {{c.name}}
+            </option>
+
+          </select>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <div
@@ -29,54 +51,38 @@
       width="200"
       height="200"/>
 
-    <br>
-    <label>Click task title to view the derail</label>
-
+    <br><label>Click task title to view the derail</label>
   </div>
-
-  <select
-    v-if="task.id != null"
-    v-on:change="categoryChanged"
-    v-model="selected">
-
-    <option
-      v-for="c in categories"
-      v-if="!c.isAll">
-      {{c.name}}
-    </option>
-
-  </select>
 
 </div>
 </template>
 
 <script>
 export default {
-  name : 'TaskEdit',
-  props: ['task', 'categories'],
-  data () {
-    return {
-        selected : null
+    name : 'TaskEdit',
+    props: ['task', 'categories'],
+    data () {
+        return {
+            selected : null
+        }
+    },
+    watch: {
+        task: function(newVal, oldVal) {
+            if(newVal) {
+                let selectedCategory = this.categories.find((c) => c.id == newVal.category)
+                if(selectedCategory) {
+                    this.selected = selectedCategory.name
+                }
+            }
+        }
+    },
+    methods: {
+        categoryChanged: function(event) {
+            let newCategory = this.categories.find((c) => c.name == this.selected)
+            if (newCategory) {
+                this.task.category = newCategory.id
+            }
+        }
     }
-  },
-  watch: {
-      task: function(newVal, oldVal) {
-          if(newVal) {
-              let selectedCategory = this.categories.find((c) => c.id == newVal.category)
-              if(selectedCategory) {
-                  this.selected = selectedCategory.name
-                  console.log(this.selected)
-              }
-          }
-      }
-  },
-  methods: {
-      categoryChanged: function(event) {
-          let newCategory = this.categories.find((c) => c.name == this.selected)
-          if (newCategory) {
-              this.task.category = newCategory.id
-          }
-      }
-  }
 }
 </script>

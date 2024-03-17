@@ -129,6 +129,12 @@ textarea {
   border: none;
 }
 
+select {
+  font: normal 14px "Fira Sans", Helvetica, sans-serif;
+  border: none;
+  background-color: white;
+}
+
 .fullscreen {
   width: 95%;
   height: 100%;
