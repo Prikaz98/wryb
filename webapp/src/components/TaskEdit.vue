@@ -18,7 +18,7 @@
     <table>
       <tr>
         <td>Create time:</td>
-        <td>{{task.createtime == null ? "" : new Date(task.createtime).toLocaleString()}}</td>
+        <td>{{task.createtime == null ? "" : new Date(task.createtime).toLocaleString('en-GB', { timeZone: 'UTC' })}}</td>
       </tr>
       <tr>
         <td>Current category:</td>

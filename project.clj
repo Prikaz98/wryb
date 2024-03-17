@@ -12,7 +12,6 @@
                  [io.github.tonsky/toml-clj "0.1.0"]
                  [org.apache.logging.log4j/log4j-core "2.23.1"]
                  [org.clojure/tools.logging "1.3.0"]]
-  ;;:jvm-opts ["-Dclojure.tools.logging.factory=clojure.tools.logging.impl/log4j"]
   :repl-options {:init-ns wryb.core}
   :main wryb.main/-main)
 
