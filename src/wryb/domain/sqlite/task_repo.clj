@@ -1,9 +1,9 @@
 (ns wryb.domain.sqlite.task-repo
   (:require
-   [clojure.tools.logging :refer [info]]
    [wryb.date.instant-utils :refer [timestamp-to-instant]]
-   [wryb.domain.sqlite.repository :refer [insert! update! select-by delete-by]]
-   [wryb.domain.task :refer [->Task]])
+   [wryb.domain.sqlite.repository :refer [delete-by insert! select-by update!]]
+   [wryb.domain.task :refer [->Task]]
+   [clojure.tools.logging :as log])
   (:import
    (java.util UUID)))
 
@@ -22,7 +22,7 @@
                    :row-decode row-decode})
 
 (defn save! [task]
-  (info task)
+  (log/debug task)
   (if (nil? (:id task))
     (let [id (str (UUID/randomUUID))
           new-task (assoc task :id id)]

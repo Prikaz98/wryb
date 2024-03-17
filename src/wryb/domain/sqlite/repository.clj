@@ -100,13 +100,13 @@
     (str key op (to-query-condition-value value))))
 
 (defn select-by [ctx & conditions]
-  (log/info conditions)
+  (log/debug conditions)
   (let [where-params (when (every? #(not (nil? %)) conditions)
                        (->> conditions
                             (map build-sql-condition)
                             (concat-with-delimiter " ")))
         query (str "SELECT * FROM " (:table-name ctx) (if where-params (str " WHERE " where-params) "") ";")]
-    (log/info query)
+    (log/debug query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 

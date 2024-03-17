@@ -1,7 +1,7 @@
 (ns wryb.router
   (:require
    [clojure.data.json :as json]
-   [clojure.tools.logging :refer [info]]
+   [clojure.tools.logging :as log]
    [ring.util.request :refer [body-string]]
    [ring.util.response :refer [content-type resource-response response]]
    [wryb.domain.category :as category]
@@ -9,20 +9,27 @@
    [wryb.domain.sqlite.task-repo :as t-repo]
    [wryb.domain.task :refer [task-from-json]]))
 
-
 (defn- transform-with-logging [request]
   (let [internal-request {:request-method (:request-method request)
                           :uri            (:uri request)
                           :remote-addr    (:remote-addr request)
                           :body           (body-string request)}]
-    (info internal-request)
     internal-request))
+
+(defn- build-logging-msg [until from response-string]
+  (let [count-str (count response-string)]
+    (if (< (+ until from) count-str)
+      (str (apply str (take until response-string))
+           "..."
+           (apply str (take-last from response-string))
+           "[size " count-str "]")
+      response-string)))
 
 (defn- logging-response [response]
   (let [response-string (str response)
-        logging-msg     (if (< 200 (count response-string)) (str (apply str (take 150 response-string)) "..." (apply str (take-last 20 response-string)))
-                            response-string)]
-    (info (str "RESP:" logging-msg))
+        [begin-chars end-chars] '(100 20)
+        logging-msg     (build-logging-msg begin-chars end-chars response-string)]
+    (when logging-msg (log/info (str "RESP:" logging-msg)))
     response))
 
 (defn- app-json [resp]
@@ -39,9 +46,9 @@
    (-> request
        (transform-with-logging)
        (:body)
-       ((fn [body](if (nil? body) "" (json/read-str body))))
+       ((fn [body] (if (nil? body) "" (json/read-str body))))
        (process)
-       ((fn [result](if (nil? result) "" result)))
+       ((fn [result] (if (nil? result) "" result)))
        (json/write-str)
        (logging-response)
        (response)
