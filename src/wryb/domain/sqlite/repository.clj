@@ -10,7 +10,7 @@
 
 (defn- concat-with-delimiter [delim coll]
   (if (or (nil? coll) (empty? coll)) nil
-    (reduce #(str %1 delim %2) coll)))
+      (reduce #(str %1 delim %2) coll)))
 
 (defn- as-sql-params [keys]
   (->> keys
@@ -99,23 +99,38 @@
   (let [[key op value] condition]
     (str key op (to-query-condition-value value))))
 
-(defn select-by [ctx & conditions]
+(defn- build-order-by [ordering]
+  (when ordering
+    (str " ORDER BY "
+         (->> ordering
+              (normilize-keys)
+              (concat-with-delimiter ", ")))))
+
+(defn- build-where [conditions]
+  (when (and conditions (every? #(not (nil? %)) conditions))
+    (str " WHERE "
+         (->> conditions
+              (map build-sql-condition)
+              (concat-with-delimiter " ")))))
+
+(defn select-by
+  [ctx & [conditions ordering]]
   (log/debug conditions)
-  (let [where-params (when (every? #(not (nil? %)) conditions)
-                       (->> conditions
-                            (map build-sql-condition)
-                            (concat-with-delimiter " ")))
-        query (str "SELECT * FROM " (:table-name ctx) (if where-params (str " WHERE " where-params) "") ";")]
+  (let [where-params (build-where conditions)
+        order-params (build-order-by ordering)
+        query (str "SELECT * FROM "
+                   (:table-name ctx)
+                   (if where-params where-params "")
+                   (if order-params order-params "")
+                   ";")]
     (log/debug query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 
 (defn delete-by [ctx & conditions]
-  (if (or (nil? conditions) (empty? conditions))
-    nil
-    (let [where-params (->> conditions
-                            (map build-sql-condition)
-                            (concat-with-delimiter " "))
-          query (str "DELETE FROM " (:table-name ctx) (str " WHERE " where-params) ";")]
+  (when (and conditions (not-empty conditions))
+    (log/debug conditions)
+    (let [where-params (build-where conditions)
+          query (str "DELETE FROM " (:table-name ctx) where-params ";")]
       (log/debug query)
       (.executeUpdate (create-stmt) query))))

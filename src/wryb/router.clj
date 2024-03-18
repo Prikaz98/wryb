@@ -58,8 +58,8 @@
   (resource-response "public/index.html"))
 
 (defn- task-list
-  ([] (t-repo/get-all))
-  ([category] (t-repo/get-by-category category)))
+  ([] (t-repo/get-all #{:createtime}))
+  ([category] (t-repo/get-by-category category #{:createtime})))
 
 (defn- remove-task! [task-id]
   (let [id (get task-id "id")]
@@ -80,7 +80,7 @@
   ([category] (default-handle #(task-list category))))
 
 (defn handle-get-categories []
-  (default-handle #(sort-by :createtime (c-repo/get-all))))
+  (default-handle #(c-repo/get-all #{:createtime})))
 
 (defn handle-category-save! [request]
   (default-handle request (fn [json-body] (c-repo/save! (category/from-json json-body)))))

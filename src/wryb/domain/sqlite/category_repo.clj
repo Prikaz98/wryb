@@ -31,7 +31,8 @@
 (defn remove! [id]
   (delete-by category-context (list "id" "=" id)))
 
-(defn get-all [] (select-by category-context))
+(defn get-all [& [ordering-keys]]
+  (select-by category-context nil ordering-keys))
 
 (defn get-by-id [id]
-  (select-by category-context (list "id" "=" id)))
+  (select-by category-context (list (list "id" "=" id))))
