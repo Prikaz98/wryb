@@ -33,13 +33,13 @@
       task)))
 
 (defn get-by-id [id]
-  (select-by task-context (list (list "id" "=" id))))
+  (select-by task-context [["id" "=" id]]))
 
 (defn get-all [& [ordering]]
   (select-by task-context nil ordering))
 
 (defn get-by-category [category & [ordering]]
-  (select-by task-context (when category (list (list "category" "=" category))) ordering))
+  (select-by task-context (when category [["category" "=" category]]) ordering))
 
 (defn remove! [id]
-  (delete-by task-context (list "id" "=" id)))
+  (delete-by task-context ["id" "=" id]))

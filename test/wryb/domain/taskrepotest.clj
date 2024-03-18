@@ -1,7 +1,6 @@
 (ns wryb.domain.taskrepotest
   (:require
    [clojure.test :refer :all]
-   [wryb.date.instant-utils :refer [now]]
    [wryb.domain.sqlite.task-repo :as repo]
    [wryb.domain.task :refer [->Task]])
   (:import

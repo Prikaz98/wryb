@@ -81,7 +81,12 @@
     (.execute stmt)
     (.close stmt)))
 
-(defn update! [ctx entity]
+(defn update!
+  "Update entity. In context (ctx) should be following options:
+
+  :primary-key - set of structure keys which determines uniqualy identifies of record
+  :table-name  - name of table"
+  [ctx entity]
   (let [pk (:primary-key ctx)
         stmt (.prepareStatement @connection
                                 (to-update-query (:table-name ctx) entity pk))]
@@ -114,6 +119,14 @@
               (concat-with-delimiter " ")))))
 
 (defn select-by
+  "Select records by conditional and ordering.
+
+  ctx - options:
+   :table-name  - name of table
+   :row-decoder - function which apply java.sql.ResultSet and return mapped entity
+
+  conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]
+  ordering   - key set of name field. Example: #{:createtime}"
   [ctx & [conditions ordering]]
   (log/debug conditions)
   (let [where-params (build-where conditions)
@@ -127,7 +140,14 @@
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 
-(defn delete-by [ctx & conditions]
+(defn delete-by
+  "Remove records by conditions
+
+  ctx - options:
+   :table-name  - name of table
+
+  conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]"
+  [ctx & conditions]
   (when (and conditions (not-empty conditions))
     (log/debug conditions)
     (let [where-params (build-where conditions)

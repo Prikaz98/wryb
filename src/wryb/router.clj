@@ -57,7 +57,7 @@
 (defn handle-mainpage []
   (resource-response "public/index.html"))
 
-(defn- task-list
+(defn- load-tasks
   ([] (t-repo/get-all #{:createtime}))
   ([category] (t-repo/get-by-category category #{:createtime})))
 
@@ -76,8 +76,8 @@
   (default-handle request (fn [json-body] (store-task! (task-from-json json-body)))))
 
 (defn handle-tasks
-  ([] (default-handle task-list))
-  ([category] (default-handle #(task-list category))))
+  ([] (default-handle load-tasks))
+  ([category] (default-handle #(load-tasks category))))
 
 (defn handle-get-categories []
   (default-handle #(c-repo/get-all #{:createtime})))

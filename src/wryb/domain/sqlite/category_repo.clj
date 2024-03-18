@@ -8,9 +8,9 @@
 
 (defn row-decode [rs]
   (let [id (.getString rs "id")
-          name (.getString rs "name")
-          create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
-      (->Category id name create-time)))
+        name (.getString rs "name")
+        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
+    (->Category id name create-time)))
 
 (def category-context {:primary-key #{:id}
                        :table-name "category"
@@ -29,10 +29,10 @@
       c)))
 
 (defn remove! [id]
-  (delete-by category-context (list "id" "=" id)))
+  (delete-by category-context ["id" "=" id]))
 
 (defn get-all [& [ordering-keys]]
   (select-by category-context nil ordering-keys))
 
 (defn get-by-id [id]
-  (select-by category-context (list (list "id" "=" id))))
+  (select-by category-context [["id" "=" id]]))
