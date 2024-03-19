@@ -57,9 +57,9 @@ export default {
     saveEdited: function(categoryToStore) {
       if (categoryToStore != null) {
         axios({
-            method: 'post',
-            url: '/category',
-            data: categoryToStore
+          method: 'post',
+          url: '/category',
+          data: categoryToStore
         }).then((resp) => {
           if(resp.data.error != null){
             alert(resp.data.error)
@@ -95,7 +95,7 @@ export default {
       })
     },
     addNewCategory: function() {
-       this.categories.push({})
+      this.categories.push({})
     }
   }
 }

@@ -64,113 +64,113 @@
 import axios from '../wryb-axios';
 
 export default {
-    name: 'TaskList',
-    props: ['category'],
-    data () {
-        return {
-            placeholderTaskTitle : "+ Add task",
-            emptyInputTitle : 'empty input title',
-            fillInputTitle : 'input title',
-            isHidedDoneTasks: true,
-            selectedId: null,
-            selected : 'task-row selected',
-            nonselected : 'task-row default',
-            inputIsEmpty: true,
-            newTask : '',
-            tasks: [],
-            undo: false,
-            tasksToRemove: [],
-            taskToDeleteDelay: 3000
-        }
-    },
-    mounted() {
-        this.fetchData()
-    },
-    watch: {
-        category: function (new_, old) {
-            this.placeholderTaskTitle = "+ Add task to \"" + new_.name + "\"";
-            this.isHidedDoneTasks = true;
-            this.$emit('gotoedit', {})
-            this.fetchData()
-        },
-        newTask: function (new_, old) {
-            if (new_ == '' || new_ == null) {
-                this.inputIsEmpty = true
-                return;
-            }
-
-            this.inputIsEmpty = false
-        }
-    },
-    created : function() {
-        //this.debounceNormalizeTasks = _.debounce(this.normalizeTasks, 500)
-    },
-    methods: {
-        fetchData : function() {
-            this.tasks = []
-            this.selectedId = null
-            let taskByCategoryUrl = "/tasks?category=" + this.category.id
-            if (this.category.isAll) {
-                taskByCategoryUrl = "/tasks"
-            }
-            axios.get(taskByCategoryUrl)
-                .then((resp) => {
-                    resp.data.forEach((el) => {
-                        this.tasks.push(el)
-                    })
-                })
-        },
-        toggleHideDoneTasks : function() {
-            this.isHidedDoneTasks = !this.isHidedDoneTasks
-        },
-        toDelete: function(task) {
-            this.undo = true
-            this.tasksToRemove.push(task)
-            this.tasks = this.tasks.filter((el) => el.id != task.id)
-
-            setTimeout(() => { this.undo = false }, this.taskToDeleteDelay)
-
-            setTimeout(() => {
-                if(this.tasksToRemove.length > 0) {
-                    this.tasksToRemove
-                        .forEach((elToRemove) => {
-                            axios({
-                                method: 'delete',
-                                url : '/task',
-                                data : { id : elToRemove.id }
-                            }).then((resp) => {
-                                this.tasksToRemove = this.tasksToRemove.filter((el) => el.id != resp.data)
-                            })
-                        })
-                }
-            }, this.taskToDeleteDelay)
-
-        },
-        undoTask: function() {
-            this.tasksToRemove = []
-            this.undo = false
-            this.fetchData()
-        },
-        submitTask: function() {
-            let title = this.newTask
-            axios({
-                method: 'post',
-                url: '/task',
-                data: {
-                    title: title,
-                    isdone: false,
-                    category: this.category.id
-                }
-            }).then((resp) => {
-                this.tasks.unshift(resp.data)
-                this.newTask = null
-            })
-        },
-        gotoedit : function(task) {
-            this.$emit('gotoedit', task)
-            this.selectedId = task.id
-        }
+  name: 'TaskList',
+  props: ['category'],
+  data () {
+    return {
+      placeholderTaskTitle : "+ Add task",
+      emptyInputTitle : 'empty input title',
+      fillInputTitle : 'input title',
+      isHidedDoneTasks: true,
+      selectedId: null,
+      selected : 'task-row selected',
+      nonselected : 'task-row default',
+      inputIsEmpty: true,
+      newTask : '',
+      tasks: [],
+      undo: false,
+      tasksToRemove: [],
+      taskToDeleteDelay: 3000
     }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  watch: {
+    category: function (new_, old) {
+      this.placeholderTaskTitle = "+ Add task to \"" + new_.name + "\"";
+      this.isHidedDoneTasks = true;
+      this.$emit('gotoedit', {})
+      this.fetchData()
+    },
+    newTask: function (new_, old) {
+      if (new_ == '' || new_ == null) {
+        this.inputIsEmpty = true
+        return;
+      }
+
+      this.inputIsEmpty = false
+    }
+  },
+  created : function() {
+    //this.debounceNormalizeTasks = _.debounce(this.normalizeTasks, 500)
+  },
+  methods: {
+    fetchData : function() {
+      this.tasks = []
+      this.selectedId = null
+      let taskByCategoryUrl = "/tasks?category=" + this.category.id
+      if (this.category.isAll) {
+        taskByCategoryUrl = "/tasks"
+      }
+      axios.get(taskByCategoryUrl)
+        .then((resp) => {
+          resp.data.forEach((el) => {
+            this.tasks.push(el)
+          })
+        })
+    },
+    toggleHideDoneTasks : function() {
+      this.isHidedDoneTasks = !this.isHidedDoneTasks
+    },
+    toDelete: function(task) {
+      this.undo = true
+      this.tasksToRemove.push(task)
+      this.tasks = this.tasks.filter((el) => el.id != task.id)
+
+      setTimeout(() => { this.undo = false }, this.taskToDeleteDelay)
+
+      setTimeout(() => {
+        if(this.tasksToRemove.length > 0) {
+          this.tasksToRemove
+            .forEach((elToRemove) => {
+              axios({
+                method: 'delete',
+                url : '/task',
+                data : { id : elToRemove.id }
+              }).then((resp) => {
+                this.tasksToRemove = this.tasksToRemove.filter((el) => el.id != resp.data)
+              })
+            })
+        }
+      }, this.taskToDeleteDelay)
+
+    },
+    undoTask: function() {
+      this.tasksToRemove = []
+      this.undo = false
+      this.fetchData()
+    },
+    submitTask: function() {
+      let title = this.newTask
+      axios({
+        method: 'post',
+        url: '/task',
+        data: {
+          title: title,
+          isdone: false,
+          category: this.category.id
+        }
+      }).then((resp) => {
+        this.tasks.unshift(resp.data)
+        this.newTask = null
+      })
+    },
+    gotoedit : function(task) {
+      this.$emit('gotoedit', task)
+      this.selectedId = task.id
+    }
+  }
 }
 </script>
 

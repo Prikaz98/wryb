@@ -22,7 +22,7 @@ export default {
   methods: {
     createNewCategory : function() {
       if(this.newCategory == '' && this.newCategory == null) {
-          return;
+        return;
       }
       let categoryName = this.newCategory
       console.log('create new category ' + categoryName)
@@ -31,8 +31,8 @@ export default {
         url: '/category',
         data: { name: categoryName }
       }).then((resp) => {
-         this.$emit('newcategory', resp.data)
-         this.newCategory = '' 
+        this.$emit('newcategory', resp.data)
+        this.newCategory = ''
       })
     }
   }

@@ -59,30 +59,30 @@
 
 <script>
 export default {
-    name : 'TaskEdit',
-    props: ['task', 'categories'],
-    data () {
-        return {
-            selected : null
-        }
-    },
-    watch: {
-        task: function(newVal, oldVal) {
-            if(newVal) {
-                let selectedCategory = this.categories.find((c) => c.id == newVal.category)
-                if(selectedCategory) {
-                    this.selected = selectedCategory.name
-                }
-            }
-        }
-    },
-    methods: {
-        categoryChanged: function(event) {
-            let newCategory = this.categories.find((c) => c.name == this.selected)
-            if (newCategory) {
-                this.task.category = newCategory.id
-            }
-        }
+  name : 'TaskEdit',
+  props: ['task', 'categories'],
+  data () {
+    return {
+      selected : null
     }
+  },
+  watch: {
+    task: function(newVal, oldVal) {
+      if(newVal) {
+        let selectedCategory = this.categories.find((c) => c.id == newVal.category)
+        if(selectedCategory) {
+          this.selected = selectedCategory.name
+        }
+      }
+    }
+  },
+  methods: {
+    categoryChanged: function(event) {
+      let newCategory = this.categories.find((c) => c.name == this.selected)
+      if (newCategory) {
+        this.task.category = newCategory.id
+      }
+    }
+  }
 }
 </script>
