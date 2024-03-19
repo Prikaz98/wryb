@@ -94,7 +94,7 @@ export default {
       this.fetchData()
     },
     newTask: function (new_, old) {
-      if (new_ == '' || new_ == null) {
+      if (!new_ || new_ == '') {
         this.inputIsEmpty = true
         return;
       }
