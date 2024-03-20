@@ -1,0 +1,1 @@
+{:output-wrapper false, :externs ["closure-js/externs"], :libs ["closure-js/libs"], :output-to "dev-target/public/js/compiled/testable.js", :main wryb-ui.test-runner, :optimizations :none, :output-dir "target/cljsbuild-compiler-1"}

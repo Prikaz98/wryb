@@ -1,0 +1,25 @@
+(go)
+(cljs-repl)
+categories
+clojure-script-project.core/categories
+(map (fn [c] [:div (:name c)]) cclojure-script-project.core/categories)
+(map (fn [c] [:div (:name c)]) clojure-script-project.core/categories)
+(cljs-repl)
+(go)
+exit
+(go)
+(go
+)
+(cljs-repl)
+(go)
+exit
+(go)
+exit
+(go)
+exit
+(go)
+exit
+(go)
+exit
+(go)
+exit
