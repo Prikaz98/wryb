@@ -141,7 +141,7 @@ button {
 }
 
 .task-row {
-  padding : 2px 2px;
+  padding : 5px 0px 5px 0px;
   border-bottom: 1px solid;
   border-width: 1px;
 }

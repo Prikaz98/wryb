@@ -1,1 +1,0 @@
-{"version":3,"file":"\/home\/ivan\/pet-projects\/wryb\/webapp-clojure\/target\/cljsbuild-compiler-1\/wryb_ui\/common.js","sources":["common.cljc"],"lineCount":11,"mappings":";AAAA;;AAEA;;;2BAAA,3BAAMA;AAAN,AAGE,mCAAA,5BAACC","names":["wryb-ui.common\/shared-fn","cljs.core\/println"]}

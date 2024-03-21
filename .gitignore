@@ -14,3 +14,10 @@ pom.xml.asc
 .cpcache/
 .idea/
 .lsp/
+/.repl
+/lib/
+/log/
+/out/
+/resources/public/js/compiled/**
+figwheel_server.log
+/dev-target
