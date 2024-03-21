@@ -12,17 +12,22 @@
 
 (defonce todos (atom '()))
 
-(defn- replace-by-key [key src target]
-  ((fn [tail acc]
+(defn- replace-by-key-or-add [key src target]
+  (if (some #(= (key %) (key target)) src)
+    ((fn [tail acc]
      (let [head (first tail)]
        (case head
          nil acc
          (if (= (key head) (key target))
            (recur (rest tail) (cons target acc))
-           (recur (rest tail) (cons head acc)))))) (reverse src) nil))
+           (recur (rest tail) (cons head acc)))))) (reverse src) nil)
+    (cons target src)))
 
 (defn update-todo-in-list [todo]
-  (reset! todos (replace-by-key :id @todos todo)))
+  (reset! todos (replace-by-key-or-add :id @todos todo)))
+
+(defn update-category-in-list [c]
+  (reset! categories (replace-by-key-or-add :id @categories c)))
 
 (defonce selected-category (atom nil))
 

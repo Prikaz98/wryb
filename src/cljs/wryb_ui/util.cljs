@@ -7,7 +7,9 @@
 
 (defn http-req [url body & method]
   (-> (js/fetch url (clj->js {:method (if method method "POST") :body (.stringify js/JSON (clj->js body))}))
-        (.then #(.json %))
+        (.then (fn [resp] (if (.-ok resp)
+                           (.json resp)
+                           (throw (js/Error. "smt went wrong")))))
         (.then #(js->clj % :keywordize-keys true))))
 
 (defn http-get [url]
