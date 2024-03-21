@@ -23,7 +23,7 @@
           saved (save! t)]
       (is (not (nil? saved)))
       (-> (get-by-id (:id saved))
-          (= (list saved))
+          (= saved)
           (is)))))
 
 (deftest insert-and-get-all
