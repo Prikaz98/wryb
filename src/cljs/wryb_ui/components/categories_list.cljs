@@ -26,6 +26,32 @@
                                       (reset! input-name name))}
      name]))
 
+(defn- edit-category-component [input-name category-on-edit reset-all]
+  [:div
+   [:input.element {:type "text"
+                    :style {:border "solid"
+                            :border-width "1px"}
+                    :on-change #(reset! input-name (-> % .-target .-value))
+                    :value @input-name
+                    :on-key-down (fn [e]
+                                   (case (.-which e)
+                                     27 (reset-all)
+                                     13 (store-category category-on-edit input-name reset-all)
+                                     nil))}]
+   (when (not-empty @category-on-edit)
+     [:button {:style {:float "left"
+                       :background-color " #ff9983 "
+                       :margin-top "5px"}
+               :on-click (fn []
+                           (-> (http-req "category" {:id (:id @category-on-edit)} "DELETE")
+                               (.then (fn [{:keys [id error]}]
+                                        (when id
+                                          (reset! categories (filter #(not (= id (:id %))) @categories)))
+                                        (when error
+                                          (js/alert error))
+                                        (reset-all)))))}
+      "del"])])
+
 (defn categories-component []
   (let [is-edit-category (atom false)
         category-on-edit (atom {})
@@ -39,27 +65,7 @@
        (for [c @categories]
          ^{:key (:id c)} [category-row category-on-edit is-edit-category input-name c])
        (if @is-edit-category
-         [:div
-          [:input.element {:type "text"
-                           :on-change #(reset! input-name (-> % .-target .-value))
-                           :value @input-name
-                           :on-key-down (fn [e]
-                                          (case (.-which e)
-                                            27 (reset-all)
-                                            13 (store-category category-on-edit input-name reset-all)
-                                            (js/console.log "nothing to do")))}]
-          [:button {:style {:float "left"
-                            :background-color "red"
-                            :margin-top "5px"}
-                    :on-click (fn []
-                                (-> (http-req "category" {:id (:id @category-on-edit)} "DELETE")
-                                    (.then (fn [resp]
-                                             (when (:id resp)
-                                               (reset! categories (filter #(not (= resp (:id %))) @categories)))
-                                             (when (:error resp)
-                                               (js/alert (:error resp)))
-                                             (reset-all)))))}
-           "del"]]
+         [edit-category-component input-name category-on-edit reset-all]
          [:button {:style {:float "right" :margin-top "5px"}
                    :on-click (fn [_]
                                (reset! is-edit-category true))}

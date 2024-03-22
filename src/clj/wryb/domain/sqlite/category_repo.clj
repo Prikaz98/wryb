@@ -31,8 +31,8 @@
 (defn remove! [id]
   (delete-by category-context ["id" "=" id]))
 
-(defn get-all [& [ordering-keys]]
-  (select-by category-context nil ordering-keys))
+(defn get-all [& [ordering]]
+  (select-by category-context {:order-by ordering :is-desc true}))
 
 (defn get-by-id [id]
-  (select-by category-context [["id" "=" id]]))
+  (select-by category-context {:conditions [["id" "=" id]]}))

@@ -23,14 +23,14 @@
         (.then (fn [result] (update-todo-in-list result))))))
 
 (defn- task-row-component [task]
-  (let [{:keys [id isdone]} task]
+  (let [{:keys [id isdone title]} task]
     [:div.task-row {:id id}
      [:input {:style {:float "left" :margin-right "5px"}
               :type "checkbox"
               :defaultChecked isdone
               :on-change #(switch-isdone task (-> % .-target .-checked))}]
      [:div {:on-click #(select-row task)}
-      (:title task)
+      title
       [:button {:style {:float "right"}
                 :on-click (fn [_] (remove-task id))}
        "x"]]]))

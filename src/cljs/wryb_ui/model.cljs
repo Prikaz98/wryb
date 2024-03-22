@@ -8,26 +8,29 @@
 (-> (js/fetch "/categories")
     (.then #(.json %))
     (.then #(js->clj % :keywordize-keys true))
-    (.then #(reset! categories %)))
+    (.then #(reset! categories (apply vector %))))
 
 (defonce todos (atom '()))
 
 (defn- replace-by-key-or-add [key src target]
-  (if (some #(= (key %) (key target)) src)
-    ((fn [tail acc]
-     (let [head (first tail)]
-       (case head
-         nil acc
-         (if (= (key head) (key target))
-           (recur (rest tail) (cons target acc))
-           (recur (rest tail) (cons head acc)))))) (reverse src) nil)
-    (cons target src)))
+  (let [loop-acc (fn [tail acc]
+               (let [head (first tail)]
+                 (case head
+                   nil acc
+                   (if (= (key head) (key target))
+                     (recur (rest tail) (cons target acc))
+                     (recur (rest tail) (cons head acc))))))]
+    (if (some #(= (key %) (key target)) src)
+      (loop-acc (reverse src) nil)
+      (conj src target))))
 
 (defn update-todo-in-list [todo]
   (reset! todos (replace-by-key-or-add :id @todos todo)))
 
 (defn update-category-in-list [c]
-  (reset! categories (replace-by-key-or-add :id @categories c)))
+  (->> (replace-by-key-or-add :id @categories c)
+       (sort-by #(:createtime %))
+       (reset! categories)))
 
 (defonce selected-category (atom nil))
 

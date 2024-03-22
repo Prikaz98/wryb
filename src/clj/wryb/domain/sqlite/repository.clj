@@ -104,12 +104,13 @@
   (let [[key op value] condition]
     (str key op (to-query-condition-value value))))
 
-(defn- build-order-by [ordering]
-  (when ordering
+(defn- build-order-by [order-by is-desc]
+  (when order-by
     (str " ORDER BY "
-         (->> ordering
+         (->> order-by
               (normilize-keys)
-              (concat-with-delimiter ", ")))))
+              (concat-with-delimiter ", "))
+         (if is-desc " DESC " " ASC "))))
 
 (defn- build-where [conditions]
   (when (and conditions (every? #(not (nil? %)) conditions))
@@ -120,17 +121,17 @@
 
 (defn select-by
   "Select records by conditional and ordering.
-
+ordering
   ctx - options:
    :table-name  - name of table
    :row-decoder - function which apply java.sql.ResultSet and return mapped entity
 
   conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]
   ordering   - key set of name field. Example: #{:createtime}"
-  [ctx & [conditions ordering]]
+  [ctx & [{:keys [conditions order-by is-desc]}]]
   (log/debug conditions)
   (let [where-params (build-where conditions)
-        order-params (build-order-by ordering)
+        order-params (build-order-by order-by is-desc)
         query (str "SELECT * FROM "
                    (:table-name ctx)
                    (if where-params where-params "")

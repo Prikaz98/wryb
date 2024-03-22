@@ -26,11 +26,15 @@ body {
 
 input {
   font: normal 14px "Fira Sans", Helvetica, sans-serif;
+  border: none;
+  border-radius: 5px;
 }
 
 textarea {
   font: normal 14px "Fira Sans", Helvetica, sans-serif;
   border: none;
+  border-radius: 5px;
+  resize: vertical;
 }
 
 .selected {
@@ -51,10 +55,8 @@ textarea {
 }
 
 .title {
-  width: 99%;
-  margin: 0px 5px 5px 0px;
-  border-radius: 5px;
-  border-width: 0px;
+  width: 98%;
+  margin: 2px 2px 10px 2px;
 }
 
 .green-button {
@@ -147,8 +149,6 @@ button {
 }
 
 .desc {
-  width: 99%;
-  margin: 0px 5px 5px 0px;
-  border-radius:5px;
-  border-width:1px;
+  width: 98%;
+  margin: 2px 2px 10px 2px;
 }

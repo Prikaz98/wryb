@@ -89,7 +89,7 @@
   (default-handle #(t-repo/get-by-id id)))
 
 (defn handle-get-categories []
-  (default-handle #(c-repo/get-all #{:createtime})))
+  (default-handle (fn [] (c-repo/get-all #{:createtime}))))
 
 (defn handle-category-save! [request]
   (default-handle request (fn [json-body] (c-repo/save! (category/from-json json-body)))))
