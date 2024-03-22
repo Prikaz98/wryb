@@ -20,6 +20,6 @@ Ui will be allowed by localhost:3000
 # Screenshots
 
 ![img](./wryb-screen.png)
-
 ![img](./wryb-screen-2.png)
-
+![img](./wryb-screen-3.png)
+![img](./wryb-screen-4.png)
