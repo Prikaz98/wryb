@@ -48,24 +48,25 @@
      (first rows)
      (map (fn [row] [:text [:br] row]) (rest rows))]))
 
-(defn- content-component [content]
-  (if (not (includes? content desc-block-delimiter))
-    (with-br-tag content)
-    (let [[description-block todo-block] (split content desc-block-delimiter)
-          todos (split todo-block #"\n")]
-      [:text
-       (with-br-tag description-block)
-       (for [sub-task todos]
-         (let [is-done (= \. (first sub-task))
-               title (if is-done
-                       (subs sub-task 1 (count sub-task))
-                       sub-task)]
-           [:div.task-row
-            [:input {:style {:float "left" :margin-right "5px"}
-                     :type "checkbox"
-                     :on-change #(update-is-todo-in-sub! is-done title sub-task todos description-block)
-                     :defaultChecked is-done}]
-            [:div title]]))])))
+(defn- content-component []
+  (fn [content]
+    (if (not (includes? content desc-block-delimiter))
+      (with-br-tag content)
+      (let [[description-block todo-block] (split content desc-block-delimiter)
+            todos (split todo-block #"\n")]
+        [:text
+         (with-br-tag description-block)
+         (for [sub-task todos]
+           (let [is-done (= \. (first sub-task))
+                 title (if is-done
+                         (subs sub-task 1 (count sub-task))
+                         sub-task)]
+             [:div.task-row
+              [:input {:style {:float "left" :margin-right "5px"}
+                       :type "checkbox"
+                       :on-change #(update-is-todo-in-sub! is-done title sub-task todos description-block)
+                       :checked is-done}]
+              [:div title]]))]))))
 
 (defn- edit-task-frame [title is-desc-edit desc-content reset-all! desc createtime category]
   [:div
@@ -73,24 +74,28 @@
                              :on-change #(update-state! :title (-> % .-target .-value))
                              :value title}]
    (if @is-desc-edit
-     [:textarea.desc.task-input {:placeholder "Press Esc to exit with save"
-                                 :rows "10"
-                                 :on-change #(reset! desc-content (-> % .-target .-value))
-                                 :on-key-down (fn [e]
-                                                (when (= 27 (.-which e))
-                                                  (update-state! :desc
-                                                                 (when (not (blank? @desc-content))
-                                                                   @desc-content))
-                                                  (reset-all!)))
-                                 :value @desc-content}]
+     (let [store-desc (fn []
+                        (update-state! :desc
+                                       (when (not (blank? @desc-content))
+                                         @desc-content))
+                        (reset-all!))]
+       [:div
+        [:textarea.desc.task-input {:placeholder "Press Esc to exit with save"
+                                    :rows "10"
+                                    :on-change #(reset! desc-content (-> % .-target .-value))
+                                    :on-key-down #(when (= 27 (.-which %)) (store-desc))
+                                    :value @desc-content}]
+        [:button {:on-click #(store-desc)
+                  :style {:float "right"}}
+         "submit"]])
      [:div.desc {:on-double-click (fn []
                                     (reset! is-desc-edit true)
                                     (reset! desc-content (if desc desc "")))}
 
       (if desc
-        [:div (content-component desc)]
+        [:div [content-component desc]]
         [:text {:style {:color "gray"}} "click twice to edit"])])
-   [:table
+   [:table {:style {:margin-top "20px"}}
     [:tbody
      [:tr [:td "Create time:"] [:td (format-time createtime)]]
      [:tr [:td "Current category:"] [:td (category-selector category @categories)]]]]])
