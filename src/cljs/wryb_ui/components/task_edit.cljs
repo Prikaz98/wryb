@@ -65,10 +65,10 @@
                             [:input {:style {:float "left" :margin-right "5px"}
                                      :type "checkbox"
                                      :on-change #(update-is-todo-in-sub! is-done
-                                                       title
-                                                       sub-task
-                                                       todos
-                                                       description-block)
+                                                                         title
+                                                                         sub-task
+                                                                         todos
+                                                                         description-block)
                                      :checked is-done}]
                             [:div title]]))]))))
 
