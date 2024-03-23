@@ -3,7 +3,7 @@
    [clojure.string :refer [blank? includes? split]]
    [reagent.core :as reagent :refer [atom]]
    [wryb-ui.model :refer [categories selected-task update-todo-in-list]]
-   [wryb-ui.util :refer [http-req]]))
+   [wryb-ui.util :refer [find-first http-req]]))
 
 (defn- format-time [time]
   (when time
@@ -44,31 +44,36 @@
 
 (defn- with-br-tag [str]
   (let [rows (split str #"\n")]
-    [:text
+    [:label
      (first rows)
-     (map (fn [row] [:text [:br] row]) (rest rows))]))
+     (map (fn [row] [:label [:br] row]) (rest rows))]))
 
 (defn- content-component []
   (fn [content]
     (if (not (includes? content desc-block-delimiter))
-      (with-br-tag content)
+      [with-br-tag content]
       (let [[description-block todo-block] (split content desc-block-delimiter)
             todos (split todo-block #"\n")]
-        [:text
+        [:div
          (with-br-tag description-block)
          (for [sub-task todos]
            (let [is-done (= \. (first sub-task))
                  title (if is-done
                          (subs sub-task 1 (count sub-task))
                          sub-task)]
-             [:div.task-row
-              [:input {:style {:float "left" :margin-right "5px"}
-                       :type "checkbox"
-                       :on-change #(update-is-todo-in-sub! is-done title sub-task todos description-block)
-                       :checked is-done}]
-              [:div title]]))]))))
+             ^{:key title} [:div.task-row
+                            [:input {:style {:float "left" :margin-right "5px"}
+                                     :type "checkbox"
+                                     :on-change #(update-is-todo-in-sub! is-done
+                                                       title
+                                                       sub-task
+                                                       todos
+                                                       description-block)
+                                     :checked is-done}]
+                            [:div title]]))]))))
 
-(defn- edit-task-frame [title is-desc-edit desc-content reset-all! desc createtime category]
+(defn- edit-task-frame
+  [title is-desc-edit desc-content reset-all! desc createtime category-id]
   [:div
    [:input.title.task-input {:placeholder "title description"
                              :on-change #(update-state! :title (-> % .-target .-value))
@@ -80,7 +85,7 @@
                                          @desc-content))
                         (reset-all!))]
        [:div
-        [:textarea.desc.task-input {:placeholder "Press Esc to exit with save"
+        [:textarea.desc.task-input {:placeholder "Press Esc or sumbit button to exit with save"
                                     :rows "10"
                                     :on-change #(reset! desc-content (-> % .-target .-value))
                                     :on-key-down #(when (= 27 (.-which %)) (store-desc))
@@ -94,11 +99,11 @@
 
       (if desc
         [:div [content-component desc]]
-        [:text {:style {:color "gray"}} "click twice to edit"])])
+        [:label {:style {:color "gray"}} "click twice to edit"])])
    [:table {:style {:margin-top "20px"}}
     [:tbody
      [:tr [:td "Create time:"] [:td (format-time createtime)]]
-     [:tr [:td "Current category:"] [:td (category-selector category @categories)]]]]])
+     [:tr [:td "Current category:"] [:td [category-selector category-id @categories]]]]]])
 
 (defn- default-frame []
   [:div {:style {:margin "100px 0px 0px 100px"}}
@@ -107,7 +112,7 @@
           :width "200"
           :height "200"}]
    [:br]
-   [:text "Click task title to view the derail"]])
+   [:label "Click task title to view the derail"]])
 
 (defn edit-task-component []
   (let [is-desc-edit (atom false)
@@ -119,5 +124,5 @@
       (let [{:keys [title desc createtime category]} @selected-task]
         [:div.split.right
          (if title
-           (edit-task-frame title is-desc-edit desc-content reset-all! desc createtime category)
-           (default-frame))]))))
+           [edit-task-frame title is-desc-edit desc-content reset-all! desc createtime category]
+           [default-frame])]))))

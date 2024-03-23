@@ -65,10 +65,10 @@
       [:div.content.split.left
        [input-title-component]
        [:div
-        [:text "Overdue:"]
+        [:label "Overdue:"]
         (for [todo @overdue]
           ^{:key (:id todo)} [task-row-component todo])]
        [:div.done
-        [:text "Done:"]
+        [:label "Done:"]
         (for [todo @done]
           ^{:key (:id todo)} [task-row-component todo])]])))

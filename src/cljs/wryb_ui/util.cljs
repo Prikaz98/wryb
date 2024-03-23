@@ -16,3 +16,6 @@
   (-> (js/fetch url)
         (.then #(.json %))
         (.then #(js->clj % :keywordize-keys true))))
+
+(defn find-first [pred coll]
+  (first (filter pred coll)))

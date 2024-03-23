@@ -14,4 +14,4 @@
    [edit-task-component]])
 
 (defn render []
-  (reagent/render [root] (.-body js/document)))
+  (reagent/render [root] (.getElementById js/document "app")))
