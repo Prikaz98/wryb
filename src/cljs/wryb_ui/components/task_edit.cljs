@@ -3,7 +3,7 @@
    [clojure.string :refer [blank? includes? split]]
    [reagent.core :as reagent :refer [atom]]
    [wryb-ui.model :refer [categories selected-task update-todo-in-list]]
-   [wryb-ui.util :refer [find-first http-req]]))
+   [wryb-ui.util :refer [http-req]]))
 
 (defn- format-time [time]
   (when time
