@@ -9,33 +9,20 @@
 
 (deftest save-test
   (testing "Store data test"
-    (let [task (->Task nil "cook" nil false "inbox" Instant/EPOCH)]
+    (let [task (->Task nil "cook" nil false "inbox" Instant/EPOCH Instant/EPOCH)]
       (is (not (nil? (:id (repo/save! task))))))))
 
 (deftest update-test
   (testing "Update data test"
-    (let [task (repo/save! (->Task nil "cook" nil false "inbox" Instant/EPOCH))
+    (let [task (repo/save! (->Task nil "cook" nil false "inbox" Instant/EPOCH Instant/EPOCH))
           updated (assoc task :title "recover" :isdone true)]
       (repo/save! updated)
       (is (= updated (repo/get-by-id (:id updated)))))))
 
 (deftest get-test
   (testing "Access to data test"
-    (let [task (->Task nil "cook" nil false "inbox" Instant/EPOCH)
+    (let [task (->Task nil "cook" nil false "inbox" Instant/EPOCH Instant/EPOCH)
           new-task (repo/save! task)
           id (:id new-task)]
       (and (is (= (repo/get-by-id id) new-task))
            (is (not-empty (repo/get-all)))))))
-
-(def parse-param [{:rgx #"\*" :tag :b}
-                  {:rgx #"\/" :tag :i}])
-
-(defn- content-to-html [content {:keys [rgx tag]}]
-  (let [splitted-by-tag (split content rgx)]
-    (for [i (range 0 (count splitted-by-tag))]
-      (if (not (even? i))
-        [tag (nth splitted-by-tag i)]
-        (nth splitted-by-tag i)))))
-
-(let [content "*bold* /italic/ *other bold*"]
-  (map #(content-to-html content %) parse-param))

@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS task (
     "desc" text,
     isdone boolean,
     createtime timestamp,
+    expiredtime timestamp,
     category varchar(255) default 'inbox'
 );
 

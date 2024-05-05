@@ -7,15 +7,15 @@
   (:import
    (java.util UUID)))
 
-
 (defn row-decode [rs]
   (let [id (.getString rs "id")
         title (.getString rs "title")
         desc (.getString rs "desc")
         isdone (.getBoolean rs "isdone")
-        category (.getString rs "category")
-        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
-    (->Task id title desc isdone category create-time)))
+        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))
+        expired-time (timestamp-to-instant (.getTimestamp rs "expiredtime"))
+        category (.getString rs "category")]
+    (->Task id title desc isdone category create-time expired-time)))
 
 (def task-context {:primary-key #{:id}
                    :table-name "task"
@@ -40,7 +40,7 @@
 
 (defn get-by-category [category & [ordering]]
   (select-by task-context {:conditions (when category [["category" "=" category]])
-                           :order-by ordering} ))
+                           :order-by ordering}))
 
 (defn remove! [id]
   (delete-by task-context ["id" "=" id]))

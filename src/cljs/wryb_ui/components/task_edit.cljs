@@ -72,18 +72,10 @@
                                      :checked is-done}]
                             [:div title]]))]))))
 
-(defn- edit-task-frame
-  [title is-desc-edit desc-content reset-all! desc createtime category-id]
-  [:div
-   [:input.title.task-input {:placeholder "title description"
-                             :on-change #(update-state! :title (-> % .-target .-value))
-                             :value title}]
-   (if @is-desc-edit
-     (let [store-desc (fn []
-                        (update-state! :desc
-                                       (when (not (blank? @desc-content))
-                                         @desc-content))
-                        (reset-all!))]
+(defn- edit-description [desc-content reset-all!]
+  (let [store-desc (fn []
+                     (update-state! :desc (when (not (blank? @desc-content)) @desc-content))
+                     (reset-all!))]
        [:div
         [:textarea.desc.task-input {:placeholder "Press Esc or sumbit button to exit with save"
                                     :rows "10"
@@ -92,11 +84,18 @@
                                     :value @desc-content}]
         [:button {:on-click #(store-desc)
                   :style {:float "right"}}
-         "submit"]])
+         "submit"]]))
+
+(defn- edit-task-frame [title is-desc-edit desc-content reset-all! desc createtime category-id]
+  [:div
+   [:input.title.task-input {:placeholder "title description"
+                             :on-change #(update-state! :title (-> % .-target .-value))
+                             :value title}]
+   (if @is-desc-edit
+     (edit-description desc-content reset-all!)
      [:div.desc {:on-double-click (fn []
                                     (reset! is-desc-edit true)
                                     (reset! desc-content (if desc desc "")))}
-
       (if desc
         [:div [content-component desc]]
         [:label {:style {:color "gray"}} "click twice to edit"])])

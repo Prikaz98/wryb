@@ -3,7 +3,8 @@
    [clojure.string :as string]
    [clojure.tools.logging :as log]
    [wryb.date.instant-utils :refer [format-instant instant-to-timestamp]]
-   [wryb.domain.sqlite.connectionmanager :refer [connection]]))
+   [wryb.domain.sqlite.connectionmanager :refer [connection]]
+   [wryb.utils :refer [zip-with-index]]))
 
 (defn- normilize-keys [keys]
   (map #(str (string/replace % #":" "")) keys))
@@ -27,11 +28,6 @@
                     (map (fn [_] "?"))
                     (concat-with-delimiter ", "))]
     (str "INSERT INTO " table-name "(" field-as-params ") VALUES (" values ");")))
-
-(defn- zip-with-index
-  ([arr] (zip-with-index arr 0))
-  ([arr start]
-   (zipmap arr (range start (+ start (count arr))))))
 
 (defn- fill-stmt!
   "Read fields and put them into statment"
@@ -74,7 +70,11 @@
 (defn- create-stmt []
   (.createStatement @connection))
 
-(defn insert! [ctx entity]
+(defn insert!
+  "Insert entity. In context (ctx) should be following options:
+
+  :table-name - name of table"
+  [ctx entity]
   (let [stmt (.prepareStatement @connection
                                 (to-insert-query (:table-name ctx) entity))]
     (fill-insert-stmt! stmt entity)

@@ -16,4 +16,5 @@
   (Timestamp/from instant))
 
 (defn timestamp-to-instant [timestamp]
-  (.toInstant timestamp))
+  (when timestamp
+    (.toInstant timestamp)))
