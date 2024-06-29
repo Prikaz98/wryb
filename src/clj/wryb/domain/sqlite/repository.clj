@@ -6,7 +6,9 @@
    [wryb.domain.sqlite.connectionmanager :refer [connection]]
    [wryb.utils :refer [zip-with-index]]))
 
-(defn- normilize-keys [keys]
+(defn- normilize-keys
+  "Remove special key symbol ';'"
+  [keys]
   (map #(str (string/replace % #":" "")) keys))
 
 (defn- concat-with-delimiter [delim coll]

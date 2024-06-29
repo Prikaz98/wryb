@@ -1,6 +1,7 @@
 (ns wryb-ui.components.task-edit
   (:require
    [clojure.string :refer [blank? includes? split]]
+   [clojure.string :as str]
    [reagent.core :as reagent :refer [atom]]
    [wryb-ui.model :refer [categories selected-task update-todo-in-list]]
    [wryb-ui.util :refer [http-req]]))
@@ -61,16 +62,17 @@
                  title (if is-done
                          (subs sub-task 1 (count sub-task))
                          sub-task)]
-             ^{:key title} [:div.task-row
-                            [:input {:style {:float "left" :margin-right "5px"}
-                                     :type "checkbox"
-                                     :on-change #(update-is-todo-in-sub! is-done
-                                                                         title
-                                                                         sub-task
-                                                                         todos
-                                                                         description-block)
-                                     :checked is-done}]
-                            [:div title]]))]))))
+             ^{:key (.randomUUID js/crypto)}  [:div.task-row
+                                               [:input {:style {:float "left" :margin-right "5px"}
+                                                        :type "checkbox"
+                                                        :on-change #(update-is-todo-in-sub!
+                                                                     is-done
+                                                                     title
+                                                                     sub-task
+                                                                     todos
+                                                                     description-block)
+                                                        :checked is-done}]
+                                               [:div title]]))]))))
 
 (defn- edit-description [desc-content reset-all!]
   (let [store-desc (fn []
@@ -86,23 +88,55 @@
                   :style {:float "right"}}
          "submit"]]))
 
-(defn- edit-task-frame [title is-desc-edit desc-content reset-all! desc createtime category-id]
-  [:div
-   [:input.title.task-input {:placeholder "title description"
-                             :on-change #(update-state! :title (-> % .-target .-value))
-                             :value title}]
-   (if @is-desc-edit
-     (edit-description desc-content reset-all!)
-     [:div.desc {:on-double-click (fn []
-                                    (reset! is-desc-edit true)
-                                    (reset! desc-content (if desc desc "")))}
-      (if desc
-        [:div [content-component desc]]
-        [:label {:style {:color "gray"}} "click twice to edit"])])
-   [:table {:style {:margin-top "20px"}}
-    [:tbody
-     [:tr [:td "Create time:"] [:td (format-time createtime)]]
-     [:tr [:td "Current category:"] [:td [category-selector category-id @categories]]]]]])
+(defn- deconstruct-datetime [datetime-str]
+  (map (fn [el] (str/replace el #"Z" "")) (split datetime-str #"T")))
+
+(defn- expired-time-edit-component [toggle-edit expiredtime]
+  (let [close-modal #(reset! toggle-edit false)
+        [date time] (deconstruct-datetime expiredtime)
+        edit-date (atom date)
+        edit-time (atom time)
+        expired-date-time-format (fn [] (str @edit-date "T" @edit-time "Z"))]
+    (fn [_ _]
+      [:div.modal {:style {:display (if @toggle-edit "block" "none")} }
+       [:div.modal-content
+        [:input {:type "date"
+                 :value @edit-date
+                 :on-change #(reset! edit-date (-> % .-target .-value))}]
+        [:input {:type "time"
+                 :value @edit-time
+                 :on-change #(reset! edit-time (str (-> % .-target .-value) ":00"))}]
+        [:div
+         [:button {:on-click close-modal} "Close"]
+         [:button {:on-click (fn []
+                               (update-state! :expiredtime (expired-date-time-format))
+                               (close-modal))} "Submit"]]]])))
+
+(defn- edit-task-frame []
+  (let [toggle-edit-expired-time (atom false)]
+    (fn [is-desc-edit desc-content reset-all! {:keys [title desc createtime expiredtime category]}]
+      [:div
+       [:input.title.task-input {:placeholder "title description"
+                                 :on-change #(update-state! :title (-> % .-target .-value))
+                                 :value title}]
+       (if @is-desc-edit
+         (edit-description desc-content reset-all!)
+         [:div.desc {:on-double-click (fn []
+                                        (reset! is-desc-edit true)
+                                        (reset! desc-content (if desc desc "")))}
+          (if desc
+            [:div [content-component desc]]
+            [:label {:style {:color "gray"}} "click twice to edit"])])
+       [:table {:style {:margin-top "20px"}}
+        [:tbody
+         [:tr [:td "Create time:"] [:td (format-time createtime)]]
+         [:tr [:td "Expired time:"]
+          [:td {:on-click (fn []
+                            (reset! toggle-edit-expired-time true))}
+           (if expiredtime (format-time expiredtime) "None")]]
+         [:tr [:td "Current category:"] [:td [category-selector category @categories]]]]]
+
+       [expired-time-edit-component toggle-edit-expired-time expiredtime]])))
 
 (defn- default-frame []
   [:div {:style {:margin "100px 0px 0px 100px"}}
@@ -120,8 +154,8 @@
                      (reset! desc-content "")
                      (reset! is-desc-edit false))]
     (fn []
-      (let [{:keys [title desc createtime category]} @selected-task]
+      (let [curr-task @selected-task]
         [:div.split.right
-         (if title
-           [edit-task-frame title is-desc-edit desc-content reset-all! desc createtime category]
+         (if (:title curr-task)
+           [edit-task-frame is-desc-edit desc-content reset-all! curr-task]
            [default-frame])]))))

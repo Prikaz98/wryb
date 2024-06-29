@@ -15,7 +15,8 @@
       (.then (fn [removed-id]
                (->> @todos
                     (filter #(not (= removed-id (:id %))))
-                    (reset! todos))))))
+                    (reset! todos))
+               (reset! selected-task nil)))))
 
 (defn switch-isdone [task isdone]
   (let [changed-task (assoc task :isdone isdone)]
