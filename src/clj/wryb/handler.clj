@@ -1,10 +1,10 @@
 (ns wryb.handler
   (:require
-   [clojure.java.io :as io]
    [clojure.data.json :as json]
+   [clojure.java.io :as io]
    [clojure.tools.logging :as log]
    [ring.util.request :refer [body-string]]
-   [ring.util.response :refer [content-type resource-response response]]
+   [ring.util.response :refer [content-type response]]
    [wryb.domain.category :as category]
    [wryb.domain.sqlite.category-repo :as c-repo]
    [wryb.domain.sqlite.task-repo :as t-repo]

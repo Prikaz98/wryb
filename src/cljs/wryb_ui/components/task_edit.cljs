@@ -47,7 +47,7 @@
   (let [rows (split str #"\n")]
     [:label
      (first rows)
-     (map (fn [row] [:label [:br] row]) (rest rows))]))
+     (map (fn [row] ^{:key row} [:label [:br] row]) (rest rows))]))
 
 (defn- content-component []
   (fn [content]
@@ -62,17 +62,17 @@
                  title (if is-done
                          (subs sub-task 1 (count sub-task))
                          sub-task)]
-             ^{:key (.randomUUID js/crypto)}  [:div.task-row
-                                               [:input {:style {:float "left" :margin-right "5px"}
-                                                        :type "checkbox"
-                                                        :on-change #(update-is-todo-in-sub!
-                                                                     is-done
-                                                                     title
-                                                                     sub-task
-                                                                     todos
-                                                                     description-block)
-                                                        :checked is-done}]
-                                               [:div title]]))]))))
+             ^{:key title}  [:div.task-row
+                             [:input {:style {:float "left" :margin-right "5px"}
+                                      :type "checkbox"
+                                      :on-change #(update-is-todo-in-sub!
+                                                   is-done
+                                                   title
+                                                   sub-task
+                                                   todos
+                                                   description-block)
+                                      :checked is-done}]
+                             [:div title]]))]))))
 
 (defn- edit-description [desc-content reset-all!]
   (let [store-desc (fn []

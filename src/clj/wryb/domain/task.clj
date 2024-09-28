@@ -13,4 +13,4 @@
             (get json "isdone")
             (get json "category")
             (if create-time-opt (parse-instant create-time-opt) (now))
-            (if expired-time-opt (parse-instant expired-time-opt) (now)))))
+            (when expired-time-opt (parse-instant expired-time-opt)))))

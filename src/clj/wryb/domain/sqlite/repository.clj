@@ -108,15 +108,15 @@
 
 (defn- build-order-by [order-by is-desc]
   (when order-by
-    (str " ORDER BY "
+    (str "ORDER BY "
          (->> order-by
               (normilize-keys)
               (concat-with-delimiter ", "))
-         (if is-desc " DESC " " ASC "))))
+         (if is-desc " DESC" " ASC"))))
 
 (defn- build-where [conditions]
   (when (and conditions (every? #(not (nil? %)) conditions))
-    (str " WHERE "
+    (str "WHERE "
          (->> conditions
               (map build-sql-condition)
               (concat-with-delimiter " ")))))
@@ -130,15 +130,20 @@ ordering
 
   conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]
   ordering   - key set of name field. Example: #{:createtime}"
-  [ctx & [{:keys [conditions order-by is-desc]}]]
+  [ctx & [{:keys [conditions order-by is-desc offset limit]}]]
   (log/debug conditions)
   (let [where-params (build-where conditions)
         order-params (build-order-by order-by is-desc)
-        query (str "SELECT * FROM "
-                   (:table-name ctx)
-                   (if where-params where-params "")
-                   (if order-params order-params "")
-                   ";")]
+        query (->>
+               (list
+                "SELECT * FROM"
+                (:table-name ctx)
+                (if where-params where-params "")
+                (if order-params order-params "")
+                (if offset (str "OFFSET " offset) "")
+                (if limit (str "LIMIT " limit) "")
+                ";")
+               (string/join " "))]
     (log/debug query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
@@ -154,6 +159,6 @@ ordering
   (when (and conditions (not-empty conditions))
     (log/debug conditions)
     (let [where-params (build-where conditions)
-          query (str "DELETE FROM " (:table-name ctx) where-params ";")]
+          query (str "DELETE FROM " (:table-name ctx) " " where-params ";")]
       (log/debug query)
       (.executeUpdate (create-stmt) query))))
