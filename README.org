@@ -19,7 +19,7 @@ lein run
 Ui will be allowed by localhost:3000
 
 * Screenshots
-[[./wryb-screen.png]]
-[[./wryb-screen-2.png]]
-[[./wryb-screen-3.png]]
-[[./wryb-screen-4.png]]
+[[./screenshots/wryb-screen.png]]
+[[./screenshots/wryb-screen-2.png]]
+[[./screenshots/wryb-screen-3.png]]
+[[./screenshots/wryb-screen-4.png]]
