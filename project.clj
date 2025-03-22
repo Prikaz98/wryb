@@ -14,7 +14,6 @@
                  [radicalzephyr/ring.middleware.logger "0.6.0"]
                  [clj-logging-config "1.9.12"]
                  [io.github.tonsky/toml-clj "0.1.0"]
-                 ;;[clj-toml "0.3.1"]
                  [environ "1.1.0"]
                  [com.stuartsierra/component "0.3.2"]
                  [org.danielsz/system "0.4.1"]

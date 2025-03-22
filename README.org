@@ -1,4 +1,4 @@
-#+title: wryb
++title: wryb
 
 * Motivation
 Test project to learn clojure.

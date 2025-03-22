@@ -19,3 +19,17 @@
 
 (defn find-first [pred coll]
   (first (filter pred coll)))
+
+(defn zip-with-index
+  "Zip elements to seqence of [[value index]]"
+  ([arr] (zip-with-index arr [] 0))
+  ([arr start] (zip-with-index arr [] start))
+  ([arr acc next-index]
+   (if (empty? arr)
+     acc
+     (recur (rest arr) (conj acc [(first arr) next-index]) (+ next-index 1)))))
+
+(defn put-nth
+  "Recreate a COLL where EL in I position."
+  [coll i el]
+  (concat (take i coll) (list el) (drop (+ 1 i) coll)))

@@ -40,7 +40,6 @@
 
 (add-watch selected-category :watcher
            (fn [_ _ _ new-state]
-             ;;(js/console.log new-state)
              (load-tasks new-state)))
 
 (defonce selected-task (atom nil))

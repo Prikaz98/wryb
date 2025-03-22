@@ -4,11 +4,13 @@
    [clojure.string :as str]
    [reagent.core :as reagent :refer [atom]]
    [wryb-ui.model :refer [categories selected-task update-todo-in-list]]
-   [wryb-ui.util :refer [http-req]]))
+   [wryb-ui.util :refer [http-req zip-with-index put-nth]]))
+
 
 (defn- format-time [time]
   (when time
     (.toLocaleString (new js/Date time) "en-GB" (js-obj "timeZone" "UTC"))))
+
 
 (defn- update-state! [key value]
   (let [task @selected-task]
@@ -16,6 +18,7 @@
         (.then (fn [stored]
                  (reset! selected-task stored)
                  (update-todo-in-list stored))))))
+
 
 (defn- category-selector [curr-category categories]
   [:select {:style {:float "right"
@@ -27,52 +30,63 @@
                           :value id}
                  name])])
 
-(defn- concat-with-delimiter [delim coll]
-  (if (or (nil? coll) (empty? coll)) nil
-      (reduce #(str %1 delim %2) coll)))
 
-(def desc-block-delimiter "---\n")
+(defn- toggle-checkbox [row]
+  (cond
+    (re-matches #"^- \[X\] .*" row) (str/replace row #"- \[X\]" "- [ ]")
+    (re-matches #"^- \[ \] .*" row) (str/replace row #"- \[ \]" "- [X]")
+    :else row))
 
-(defn- update-is-todo-in-sub! [is-done target sub-task todos description-block]
-  (let [todo-changed (if is-done target (str "." target))
-        new-content (map (fn [row]
-                           (if (= row sub-task)
-                             todo-changed
-                             row)) todos)]
-    (update-state! :desc (str description-block
-                              desc-block-delimiter
-                              (concat-with-delimiter "\n" new-content)))))
 
-(defn- with-br-tag [str]
-  (let [rows (split str #"\n")]
-    [:label
-     (first rows)
-     (map (fn [row] ^{:key row} [:label [:br] row]) (rest rows))]))
+(defn- markdown-content [rows]
+  (for [[row index] (zip-with-index rows)]
+    (do
+      (cond
+      (re-matches #"^- \[[ X]\] .*" row)
+      ^{:key index} [:div.task-row
+       [:input {:style {:float "left" :margin-right "5px"}
+                :type "checkbox"
+                :checked (nil? (re-matches #"^- \[ \] .*" row))
+                :on-change (fn [_]
+                             (update-state!
+                                :desc
+                                (str/join
+                                 "\n"
+                                 (put-nth rows index (toggle-checkbox (nth rows index)) ))))}]
+       [:label (second (split row #"^- \[[ X]\] *"))]]
+      :else ^{:key index} [:label row [:br]]))))
+
+
+(comment
+  (toggle-checkbox "- [X] First")
+  (let [rows '("hi" "there" "- [ ] todo")
+        [row index] ["- [ ] todo" 2]]
+    (str/join
+     "\n"
+     (concat
+      (take index rows)
+      (list (toggle-checkbox (nth rows index)))
+      (drop (+ 1 index) rowx))))
+
+
+  (second (split "- [ ] First" #"^- \[[ X]\] *"))
+  (split "new\nline" #"\n")
+  (markdown-content
+   '("there is a list of tasks"
+     "- [ ] first item"
+     "- [ ] second item"
+     "other text"))
+  ((content-component)
+   "there is a list of sub tasks
+- [X] first item"))
+
 
 (defn- content-component []
-  (fn [content]
-    (if (not (includes? content desc-block-delimiter))
-      [with-br-tag content]
-      (let [[description-block todo-block] (split content desc-block-delimiter)
-            todos (split todo-block #"\n")]
-        [:div
-         (with-br-tag description-block)
-         (for [sub-task todos]
-           (let [is-done (= \. (first sub-task))
-                 title (if is-done
-                         (subs sub-task 1 (count sub-task))
-                         sub-task)]
-             ^{:key title}  [:div.task-row
-                             [:input {:style {:float "left" :margin-right "5px"}
-                                      :type "checkbox"
-                                      :on-change #(update-is-todo-in-sub!
-                                                   is-done
-                                                   title
-                                                   sub-task
-                                                   todos
-                                                   description-block)
-                                      :checked is-done}]
-                             [:div title]]))]))))
+  (fn [desc]
+    (let [rows (split desc #"\n")]
+      [:div
+       (markdown-content rows)])))
+
 
 (defn- edit-description [desc-content reset-all!]
   (let [store-desc (fn []
@@ -88,29 +102,6 @@
                   :style {:float "right"}}
          "submit"]]))
 
-(defn- deconstruct-datetime [datetime-str]
-  (map (fn [el] (str/replace el #"Z" "")) (split datetime-str #"T")))
-
-(defn- expired-time-edit-component [toggle-edit expiredtime]
-  (let [close-modal #(reset! toggle-edit false)
-        [date time] (deconstruct-datetime expiredtime)
-        edit-date (atom date)
-        edit-time (atom time)
-        expired-date-time-format (fn [] (str @edit-date "T" @edit-time "Z"))]
-    (fn [_ _]
-      [:div.modal {:style {:display (if @toggle-edit "block" "none")} }
-       [:div.modal-content
-        [:input {:type "date"
-                 :value @edit-date
-                 :on-change #(reset! edit-date (-> % .-target .-value))}]
-        [:input {:type "time"
-                 :value @edit-time
-                 :on-change #(reset! edit-time (str (-> % .-target .-value) ":00"))}]
-        [:div
-         [:button {:on-click close-modal} "Close"]
-         [:button {:on-click (fn []
-                               (update-state! :expiredtime (expired-date-time-format))
-                               (close-modal))} "Submit"]]]])))
 
 (defn- edit-task-frame []
   (let [toggle-edit-expired-time (atom false)]
@@ -121,22 +112,18 @@
                                  :value title}]
        (if @is-desc-edit
          (edit-description desc-content reset-all!)
-         [:div.desc {:on-double-click (fn []
-                                        (reset! is-desc-edit true)
-                                        (reset! desc-content (if desc desc "")))}
+         [:div.desc {:on-click (fn [e]
+                                 (when (= (.-detail e) 3)
+                                   (reset! is-desc-edit true)
+                                        (reset! desc-content (if desc desc ""))))}
           (if desc
-            [:div [content-component desc]]
-            [:label {:style {:color "gray"}} "click twice to edit"])])
+            [content-component desc]
+            [:label {:style {:color "gray"}} "click three times to edit"])])
        [:table {:style {:margin-top "20px"}}
         [:tbody
          [:tr [:td "Create time:"] [:td (format-time createtime)]]
-         [:tr [:td "Expired time:"]
-          [:td {:on-click (fn []
-                            (reset! toggle-edit-expired-time true))}
-           (if expiredtime (format-time expiredtime) "None")]]
-         [:tr [:td "Current category:"] [:td [category-selector category @categories]]]]]
+         [:tr [:td "Current category:"] [:td [category-selector category @categories]]]]]])))
 
-       [expired-time-edit-component toggle-edit-expired-time expiredtime]])))
 
 (defn- default-frame []
   [:div {:style {:margin "100px 0px 0px 100px"}}
@@ -147,14 +134,15 @@
    [:br]
    [:label "Click task title to view the derail"]])
 
+
 (defn edit-task-component []
   (let [is-desc-edit (atom false)
         desc-content (atom "")
         reset-all! (fn []
-                     (reset! desc-content "")
                      (reset! is-desc-edit false))]
     (fn []
       (let [curr-task @selected-task]
+        (reset! desc-content (:desc curr-task))
         [:div.split.right
          (if (:title curr-task)
            [edit-task-frame is-desc-edit desc-content reset-all! curr-task]
