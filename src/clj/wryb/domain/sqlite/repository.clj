@@ -11,24 +11,20 @@
   [keys]
   (map #(str (string/replace % #":" "")) keys))
 
-(defn- concat-with-delimiter [delim coll]
-  (if (or (nil? coll) (empty? coll)) nil
-      (reduce #(str %1 delim %2) coll)))
-
 (defn- as-sql-params [keys]
   (->> keys
        (normilize-keys)
        (map #(str % "=?"))
-       (concat-with-delimiter ", ")))
+       (string/join ", ")))
 
 (defn- to-insert-query
   "Build insert query from the data"
   [table-name obj]
   (let [field-names (normilize-keys (keys obj))
-        field-as-params (concat-with-delimiter ", " field-names)
+        field-as-params (string/join ", " field-names)
         values (->> field-names
                     (map (fn [_] "?"))
-                    (concat-with-delimiter ", "))]
+                    (string/join ", "))]
     (str "INSERT INTO " table-name "(" field-as-params ") VALUES (" values ");")))
 
 (defn- fill-stmt!
@@ -111,15 +107,15 @@
     (str "ORDER BY "
          (->> order-by
               (normilize-keys)
-              (concat-with-delimiter ", "))
+              (string/join ", "))
          (if is-desc " DESC" " ASC"))))
 
-(defn- build-where [conditions]
-  (when (and conditions (every? #(not (nil? %)) conditions))
-    (str "WHERE "
-         (->> conditions
-              (map build-sql-condition)
-              (concat-with-delimiter " ")))))
+(defn =* [field value]
+  (str (name field) " = " (to-query-condition-value value)))
+
+(defn- build-where [where]
+  (when (and where (every? #(not (nil? %)) where))
+    (str "WHERE " (string/join " AND " where))))
 
 (defn select-by
   "Select records by conditional and ordering.
@@ -128,37 +124,36 @@ ordering
    :table-name  - name of table
    :row-decoder - function which apply java.sql.ResultSet and return mapped entity
 
-  conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]
+  where - seq of query params. Example: [(=* :id uuid)]
   ordering   - key set of name field. Example: #{:createtime}"
-  [ctx & [{:keys [conditions order-by is-desc offset limit]}]]
-  (log/debug conditions)
-  (let [where-params (build-where conditions)
+  [ctx & {:keys [where order-by is-desc offset limit]}]
+  (log/debug where)
+  (let [where-params (build-where where)
         order-params (build-order-by order-by is-desc)
         query (->>
                (list
                 "SELECT * FROM"
                 (:table-name ctx)
-                (if where-params where-params "")
-                (if order-params order-params "")
+                (or where-params "")
+                (or order-params "")
                 (if offset (str "OFFSET " offset) "")
                 (if limit (str "LIMIT " limit) "")
                 ";")
                (string/join " "))]
-    (log/debug query)
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 
 (defn delete-by
-  "Remove records by conditions
+  "Remove records by where
 
   ctx - options:
    :table-name  - name of table
 
-  conditions - seq of query params. Example: [\"id\" \"=\" \"UUID\"]"
-  [ctx & conditions]
-  (when (and conditions (not-empty conditions))
-    (log/debug conditions)
-    (let [where-params (build-where conditions)
+  where - seq of query params. Example: (=* :id uuid)"
+  [ctx & where]
+  (when (and where (not-empty where))
+    (log/debug where)
+    (let [where-params (build-where where)
           query (str "DELETE FROM " (:table-name ctx) " " where-params ";")]
       (log/debug query)
       (.executeUpdate (create-stmt) query))))

@@ -2,7 +2,7 @@
   (:require
    [wryb.date.instant-utils :refer [timestamp-to-instant]]
    [wryb.domain.category :refer [->Category]]
-   [wryb.domain.sqlite.repository :refer [insert! select-by update! delete-by]])
+   [wryb.domain.sqlite.repository :refer [insert! select-by update! delete-by =*]])
   (:import
    (java.util UUID)))
 
@@ -29,10 +29,15 @@
       c)))
 
 (defn remove! [id]
-  (delete-by category-context ["id" "=" id]))
+  (delete-by category-context (=* :id id)))
 
 (defn get-all [& [ordering]]
-  (select-by category-context {:order-by ordering :is-desc true}))
+  (select-by
+   category-context
+   :order-by ordering
+   :is-desc true))
 
 (defn get-by-id [id]
-  (select-by category-context {:conditions [["id" "=" id]]}))
+  (select-by
+   category-context
+   :where (list (=* :id id))))

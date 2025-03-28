@@ -18,6 +18,13 @@ lein run
 #+end_src
 Ui will be allowed by localhost:3000
 
+To build uberjar use command:
+#+begin_src bash
+lein uberjar
+#to run
+java -jar target/wryb-ui.jar
+#+end_src
+
 * Screenshots
 [[./screenshots/wryb-screen.png]]
 [[./screenshots/wryb-screen-2.png]]

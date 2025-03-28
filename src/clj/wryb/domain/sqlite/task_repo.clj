@@ -1,7 +1,7 @@
 (ns wryb.domain.sqlite.task-repo
   (:require
    [wryb.date.instant-utils :refer [timestamp-to-instant]]
-   [wryb.domain.sqlite.repository :refer [delete-by insert! select-by update!]]
+   [wryb.domain.sqlite.repository :refer [delete-by insert! select-by update! =*]]
    [wryb.domain.task :refer [->Task]]
    [clojure.tools.logging :as log])
   (:import
@@ -33,14 +33,20 @@
       task)))
 
 (defn get-by-id [id]
-  (first (select-by task-context {:conditions [["id" "=" id]]})))
+  (first (select-by
+          task-context
+          :where (list (=* :id id)))))
 
 (defn get-all [& [ordering]]
-  (select-by task-context {:order-by ordering}))
+  (select-by
+   task-context
+   :order-by ordering))
 
 (defn get-by-category [category & [ordering]]
-  (select-by task-context {:conditions (when category [["category" "=" category]])
-                           :order-by ordering}))
+  (select-by
+   task-context
+   :where (list (when category (=* :category category)))
+   :order-by ordering))
 
 (defn remove! [id]
-  (delete-by task-context ["id" "=" id]))
+  (delete-by task-context (=* :id id)))
