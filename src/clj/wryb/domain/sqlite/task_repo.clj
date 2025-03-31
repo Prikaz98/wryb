@@ -8,14 +8,14 @@
    (java.util UUID)))
 
 (defn row-decode [rs]
-  (let [id (.getString rs "id")
-        title (.getString rs "title")
-        desc (.getString rs "desc")
-        isdone (.getBoolean rs "isdone")
-        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))
-        expired-time (timestamp-to-instant (.getTimestamp rs "expiredtime"))
-        category (.getString rs "category")]
-    (->Task id title desc isdone category create-time expired-time)))
+  (->Task
+   (.getString rs "id")
+   (.getString rs "title")
+   (.getString rs "desc")
+   (.getBoolean rs "isdone")
+   (.getString rs "category")
+   (timestamp-to-instant (.getTimestamp rs "createtime"))
+   (timestamp-to-instant (.getTimestamp rs "expiredtime"))))
 
 (def task-context {:primary-key #{:id}
                    :table-name "task"
@@ -24,7 +24,7 @@
 (defn save! [task]
   (log/debug task)
   (if (nil? (:id task))
-    (let [id (str (UUID/randomUUID))
+    (let [id       (str (UUID/randomUUID))
           new-task (assoc task :id id)]
       (insert! task-context new-task)
       new-task)

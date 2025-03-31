@@ -56,31 +56,6 @@
        [:label (second (split row #"^- \[[ X]\] *"))]]
       :else ^{:key index} [:label row [:br]]))))
 
-
-(comment
-  (toggle-checkbox "- [X] First")
-  (let [rows '("hi" "there" "- [ ] todo")
-        [row index] ["- [ ] todo" 2]]
-    (str/join
-     "\n"
-     (concat
-      (take index rows)
-      (list (toggle-checkbox (nth rows index)))
-      (drop (+ 1 index) rowx))))
-
-
-  (second (split "- [ ] First" #"^- \[[ X]\] *"))
-  (split "new\nline" #"\n")
-  (markdown-content
-   '("there is a list of tasks"
-     "- [ ] first item"
-     "- [ ] second item"
-     "other text"))
-  ((content-component)
-   "there is a list of sub tasks
-- [X] first item"))
-
-
 (defn- content-component []
   (fn [desc]
     (let [rows (split desc #"\n")]
@@ -138,8 +113,8 @@
 (defn edit-task-component []
   (let [is-desc-edit (atom false)
         desc-content (atom "")
-        reset-all! (fn []
-                     (reset! is-desc-edit false))]
+        reset-all!   (fn []
+                       (reset! is-desc-edit false))]
     (fn []
       (let [curr-task @selected-task]
         (reset! desc-content (:desc curr-task))

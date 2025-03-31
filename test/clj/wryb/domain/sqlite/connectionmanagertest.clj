@@ -19,8 +19,7 @@
 (deftest insert-and-get-by-id
   (testing "insert task and get by id"
     (cm/init-connection ":memory:")
-    (let [t (->Task nil "hello" "after mornign" false "inbox" Instant/EPOCH Instant/EPOCH)
-          saved (save! t)]
+    (let [saved (save! (->Task nil "hello" "after mornign" false "inbox" Instant/EPOCH Instant/EPOCH))]
       (is (not (nil? saved)))
       (-> (get-by-id (:id saved))
           (= saved)
@@ -29,9 +28,8 @@
 (deftest insert-and-get-all
   (testing "insert task and get by id"
     (cm/init-connection ":memory:")
-    (let [t (->Task nil "hello" "after mornign" false "inbox" Instant/EPOCH Instant/EPOCH)
-          saved (save! t)
-          all (get-all)]
+    (let [saved (save! (->Task nil "hello" "after mornign" false "inbox" Instant/EPOCH Instant/EPOCH))
+          all   (get-all)]
       (is (= (first all) saved)))))
 
 (deftest insert-and-remove-by-id

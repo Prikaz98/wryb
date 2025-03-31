@@ -7,13 +7,13 @@
 
 (deftest json-mapping-1
   (testing "Task mapping from json"
-    (let [now (now)
+    (let [now      (now)
           expected (->Task "id" "cook" "after dinner" false "inbox" now now)
-          js-body (json/write-str {:id "id"
-                                   :title "cook"
-                                   :desc "after dinner"
-                                   :isdone false
-                                   :category "inbox"
-                                   :createtime now
-                                   :expiredtime now})]
+          js-body  (json/write-str {:id "id"
+                                    :title "cook"
+                                    :desc "after dinner"
+                                    :isdone false
+                                    :category "inbox"
+                                    :createtime now
+                                    :expiredtime now})]
       (is (= expected (task-from-json (json/read-str js-body)))))))

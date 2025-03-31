@@ -29,3 +29,6 @@
     (-> config
         app-system
         component/start)))
+
+(comment
+  (-main))

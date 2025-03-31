@@ -14,12 +14,12 @@
 
 (defn- replace-by-key-or-add [key src target]
   (let [loop-acc (fn [tail acc]
-               (let [head (first tail)]
-                 (case head
-                   nil acc
-                   (if (= (key head) (key target))
-                     (recur (rest tail) (cons target acc))
-                     (recur (rest tail) (cons head acc))))))]
+                   (let [head (first tail)]
+                     (case head
+                       nil acc
+                       (if (= (key head) (key target))
+                         (recur (rest tail) (cons target acc))
+                         (recur (rest tail) (cons head acc))))))]
     (if (some #(= (key %) (key target)) src)
       (loop-acc (reverse src) nil)
       (conj src target))))

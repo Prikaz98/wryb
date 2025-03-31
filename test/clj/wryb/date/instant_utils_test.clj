@@ -9,14 +9,14 @@
 
 (deftest format-parse-test
   (testing "format and parse function have to match values")
-  (let [now (now)
+  (let [now      (now)
         formated (format-instant now)
-        parsed (parse-instant formated)]
+        parsed   (parse-instant formated)]
     (is (= now parsed))))
 
 (deftest to-timestamp-and-back
   (testing "convert to timestamp and return back to instant")
-  (let [now (now)
+  (let [now       (now)
         timestamp (instant-to-timestamp now)
-        instant (timestamp-to-instant timestamp)]
+        instant   (timestamp-to-instant timestamp)]
     (is (= now instant))))

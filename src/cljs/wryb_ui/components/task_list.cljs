@@ -62,7 +62,7 @@
 (defn tasks-component []
   (fn []
     (let [overdue (atom (filter #(not (:isdone %)) @todos))
-          done (atom (filter #(:isdone %) @todos))]
+          done    (atom (filter #(:isdone %) @todos))]
       [:div.content.split.left
        [input-title-component]
        [:div

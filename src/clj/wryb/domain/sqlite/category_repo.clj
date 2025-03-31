@@ -7,10 +7,10 @@
    (java.util UUID)))
 
 (defn row-decode [rs]
-  (let [id (.getString rs "id")
-        name (.getString rs "name")
-        create-time (timestamp-to-instant (.getTimestamp rs "createtime"))]
-    (->Category id name create-time)))
+  (->Category
+   (.getString rs "id")
+   (.getString rs "name")
+   (timestamp-to-instant (.getTimestamp rs "createtime"))))
 
 (def category-context {:primary-key #{:id}
                        :table-name "category"

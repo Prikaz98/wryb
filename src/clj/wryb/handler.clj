@@ -11,11 +11,10 @@
    [wryb.domain.task :refer [task-from-json]]))
 
 (defn- transform-with-logging [request]
-  (let [internal-request {:request-method (:request-method request)
-                          :uri            (:uri request)
-                          :remote-addr    (:remote-addr request)
-                          :body           (body-string request)}]
-    internal-request))
+  {:request-method (:request-method request)
+   :uri            (:uri request)
+   :remote-addr    (:remote-addr request)
+   :body           (body-string request)})
 
 (defn- build-logging-msg [until from response-string]
   (let [count-str (count response-string)]
@@ -28,7 +27,8 @@
 
 (defn- logging-response [response]
   (let [response-string (str response)
-        [begin-chars end-chars] '(100 20)
+        begin-chars     100
+        end-chars       20
         logging-msg     (build-logging-msg begin-chars end-chars response-string)]
     (when logging-msg (log/info (str "RESP:" logging-msg)))
     response))

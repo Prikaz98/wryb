@@ -55,11 +55,11 @@
 (defn categories-component []
   (let [is-edit-category (atom false)
         category-on-edit (atom {})
-        input-name (atom nil)
-        reset-all (fn []
-                    (reset! is-edit-category false)
-                    (reset! category-on-edit {})
-                    (reset! input-name nil))]
+        input-name       (atom nil)
+        reset-all        (fn []
+                           (reset! is-edit-category false)
+                           (reset! category-on-edit {})
+                           (reset! input-name nil))]
     (fn []
       [:div.categories
        (for [c @categories]

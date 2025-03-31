@@ -20,11 +20,11 @@
 (defn- to-insert-query
   "Build insert query from the data"
   [table-name obj]
-  (let [field-names (normilize-keys (keys obj))
+  (let [field-names     (normilize-keys (keys obj))
         field-as-params (string/join ", " field-names)
-        values (->> field-names
-                    (map (fn [_] "?"))
-                    (string/join ", "))]
+        values          (->> field-names
+                             (map (fn [_] "?"))
+                             (string/join ", "))]
     (str "INSERT INTO " table-name "(" field-as-params ") VALUES (" values ");")))
 
 (defn- fill-stmt!
@@ -47,9 +47,9 @@
      (recur mapf rs (conj acc (mapf rs))))))
 
 (defn- to-update-query [table-name obj identity-keys]
-  (let [set-field-names (->> (keys obj)
-                             (filter #(not (contains? identity-keys %)))
-                             (as-sql-params))
+  (let [set-field-names   (->> (keys obj)
+                               (filter #(not (contains? identity-keys %)))
+                               (as-sql-params))
         where-field-names (->> (keys obj)
                                (filter #(contains? identity-keys %))
                                (as-sql-params))]
@@ -60,7 +60,7 @@
   (let [update-values (->> (keys obj)
                            (filter #(not (contains? identity-keys %)))
                            (map #(% obj)))
-        where-values (->> (keys obj)
+        where-values  (->> (keys obj)
                           (filter #(contains? identity-keys %))
                           (map #(% obj)))]
     (fill-stmt! stmt (concat update-values where-values))))
@@ -85,7 +85,7 @@
   :primary-key - set of structure keys which determines uniqualy identifies of record
   :table-name  - name of table"
   [ctx entity]
-  (let [pk (:primary-key ctx)
+  (let [pk   (:primary-key ctx)
         stmt (.prepareStatement @connection
                                 (to-update-query (:table-name ctx) entity pk))]
     (fill-update-stmt! stmt entity pk)
@@ -119,7 +119,7 @@
 
 (defn select-by
   "Select records by conditional and ordering.
-ordering
+  ordering
   ctx - options:
    :table-name  - name of table
    :row-decoder - function which apply java.sql.ResultSet and return mapped entity
@@ -130,16 +130,16 @@ ordering
   (log/debug where)
   (let [where-params (build-where where)
         order-params (build-order-by order-by is-desc)
-        query (->>
-               (list
-                "SELECT * FROM"
-                (:table-name ctx)
-                (or where-params "")
-                (or order-params "")
-                (if offset (str "OFFSET " offset) "")
-                (if limit (str "LIMIT " limit) "")
-                ";")
-               (string/join " "))]
+        query        (string/join
+                      " "
+                      (list
+                       "SELECT * FROM"
+                       (:table-name ctx)
+                       (or where-params "")
+                       (or order-params "")
+                       (if offset (str "OFFSET " offset) "")
+                       (if limit (str "LIMIT " limit) "")
+                       ";"))]
     (->> (.executeQuery (create-stmt) query)
          (resultset-to-list (:row-decode ctx)))))
 
@@ -154,6 +154,6 @@ ordering
   (when (and where (not-empty where))
     (log/debug where)
     (let [where-params (build-where where)
-          query (str "DELETE FROM " (:table-name ctx) " " where-params ";")]
+          query        (str "DELETE FROM " (:table-name ctx) " " where-params ";")]
       (log/debug query)
       (.executeUpdate (create-stmt) query))))
